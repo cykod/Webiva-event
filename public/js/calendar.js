@@ -36,7 +36,7 @@ EventCalendar = {
   },
 
   resizeEvent: function(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view) {
-    duration = dayDelta * 24 * 60 + minuteDelta;
+    var duration = dayDelta * 24 * 60 + minuteDelta;
     $j.getJSON(EventCalendar.moveEventUrl + "/" + event.event_id, {days: 0, minutes: 0, allDay: false, duration: duration}, function(data) {
 	if(data.moved == false) {
           revertFunc();
@@ -61,6 +61,10 @@ EventCalendar = {
     $j.post(EventCalendar.deleteEventUrl + "/" + event_id);
   },
 
+  selectRanage: function(startDate, endDate, allDay, jsEvent, view) {
+    SCMS.remoteOverlay(EventCalendar.addEventUrl, {start: startDate.getTime() / 1000, end: endDate.getTime() / 1000, allDay: allDay});
+  },
+
   init: function(element_id, events, month, year) {
     EventCalendar.events = events;
     EventCalendar.calendar = $j('#' + element_id);
@@ -80,7 +84,9 @@ EventCalendar = {
 	eventClick: EventCalendar.editEvent,
         loading: function(isLoading, view) { if(isLoading) { RedBox.loading(); } else { RedBox.close(); } },
         eventDrop: EventCalendar.moveEvent,
-        eventResize: EventCalendar.resizeEvent
+	eventResize: EventCalendar.resizeEvent,
+	selectable: true,
+	select: EventCalendar.selectRanage
       });
   }
 }

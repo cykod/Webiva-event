@@ -40,6 +40,13 @@ class Event::ManageController < ModuleController
     if params[:date]
       date = Time.at params[:date].to_i
       @event.event_on = date
+    elsif @event.id.nil? && params[:start] && params[:end]
+      start_at = Time.at params[:start].to_i
+      ends_at = Time.at params[:end].to_i
+      @event.event_on = start_at
+      @event.start_time = (start_at.to_i - start_at.at_midnight.to_i) / 60 # in minutes
+      @event.duration = (ends_at.to_i - start_at.to_i) / 60
+      @event.duration += 1440 if params[:allDay] == 'true'
     end
 
     if request.post? && params[:event]
