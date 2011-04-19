@@ -1,10 +1,14 @@
 class EventEvent < DomainModel
+  include ModelExtension::HandlerExtension
+
   belongs_to :event_type
   belongs_to :owner, :polymorphic => true
   has_end_user :end_user_id
   
   has_many :event_bookings
   has_many :event_repeats
+  
+  handler :handler, :event, :type
   
   before_validation_on_create :set_defaults
   

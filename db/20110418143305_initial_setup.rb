@@ -6,7 +6,6 @@ class InitialSetup < ActiveRecord::Migration
       t.integer :image_id
       t.integer :content_model_id
       t.string :type_handler
-      t.text :data
       t.timestamps
     end
     
@@ -52,6 +51,9 @@ class InitialSetup < ActiveRecord::Migration
       
       t.boolean :published, :default => false
       
+      t.string :type_handler
+      t.text :data
+
       t.timestamps
     end
     
