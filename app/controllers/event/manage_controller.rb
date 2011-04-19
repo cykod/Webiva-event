@@ -87,7 +87,7 @@ class Event::ManageController < ModuleController
     duration = params[:duration].to_i
     @event = EventEvent.find params[:path][0]
     @event.move days, minutes, all_day, duration
-    render :json => {:moved => true}, :content_type => 'application/json'
+    render :json => {:moved => true, :event => @event}, :content_type => 'application/json'
   end
 
   def delete_event

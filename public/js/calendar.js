@@ -29,7 +29,9 @@ EventCalendar = {
     $j.getJSON(EventCalendar.moveEventUrl + "/" + event.event_id, {days: dayDelta, minutes: minuteDelta, allDay: allDay, duration: 0}, function(data) {
 	if(data.moved == false) {
           revertFunc();
-	}
+	} else {
+	  EventCalendar.updateEvent(event, data);
+        }
       });
   },
 
@@ -38,8 +40,17 @@ EventCalendar = {
     $j.getJSON(EventCalendar.moveEventUrl + "/" + event.event_id, {days: 0, minutes: 0, allDay: false, duration: duration}, function(data) {
 	if(data.moved == false) {
           revertFunc();
-	}
+	} else {
+	  EventCalendar.updateEvent(event, data);
+        }
       });
+  },
+
+  updateEvent: function(event, data) {
+    event.start = data.event.start;
+    event.end = data.event.end;
+    event.allDay = data.event.allDay;
+    EventCalendar.calendar.fullCalendar('updateEvent', event);
   },
 
   refresh: function() {
