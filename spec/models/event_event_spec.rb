@@ -4,7 +4,9 @@ require File.expand_path("../../event_spec_helper", __FILE__)
 describe EventEvent do
   it "should require a name and type" do
     @event = EventEvent.new
+    @event.valid?
     @event.should have(1).error_on(:event_type_id)
+    @event.should have(1).error_on(:name)
   end
   
   describe "EventType" do

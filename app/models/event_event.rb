@@ -91,8 +91,11 @@ class EventEvent < DomainModel
   end
 
   def set_defaults
+    self.published ||= false
     self.event_type_id ||= self.parent.event_type_id if self.parent
     self.permalink = DomainModel.generate_hash if self.permalink.blank?
+    self.type_handler = self.event_type.type_handler if self.event_type
+    true
   end
   
   def set_event_at

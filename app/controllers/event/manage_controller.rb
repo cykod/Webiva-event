@@ -35,7 +35,7 @@ class Event::ManageController < ModuleController
   
   def event
     @event = EventEvent.find(params[:path][0]) if params[:path][0]
-    @event ||= EventType.default.event_events.new :end_user_id => myself.id, :duration => 1440
+    @event ||= EventType.default.build_event :end_user_id => myself.id, :duration => 1440
     
     if request.post? && params[:event]
       if @event.update_attributes(params[:event])
