@@ -3,5 +3,6 @@
     <td><%= link_to t.name, :action => 'event', :path => t.id %></td>
     <td><%= h t.event_type.name %></td>
     <td align="center"><%= t.event_at.localize(DEFAULT_DATETIME_FORMAT.t) if t.event_at %></td>
+    <td align="center"><%= t.ends_at.localize(DEFAULT_DATETIME_FORMAT.t) if t.event_at %></td>
   <% end -%>
 <% end -%>

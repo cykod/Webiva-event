@@ -15,7 +15,8 @@ class Event::ManageController < ModuleController
                 EventEvent,
                 [ :name,
                   hdr(:options, 'event_type_id', :options => :event_type_options),
-                  :event_at
+                  :event_at,
+                  hdr(:static, 'Ends at')
                 ]
 
   def display_events_table(display=true)
@@ -34,7 +35,7 @@ class Event::ManageController < ModuleController
   
   def event
     @event = EventEvent.find(params[:path][0]) if params[:path][0]
-    @event ||= EventType.default.event_events.new :end_user_id => myself.id
+    @event ||= EventType.default.event_events.new :end_user_id => myself.id, :duration => 1440
     
     if request.post? && params[:event]
       if @event.update_attributes(params[:event])
