@@ -4,6 +4,7 @@ EventCalendar = {
   updateUrl: null,
   addEventUrl: null,
   moveEventUrl: null,
+  deleteEventUrl: null,
 
   loadEvents: function(start, end, callback) {
     if(EventCalendar.events) {
@@ -43,6 +44,10 @@ EventCalendar = {
 
   refresh: function() {
     EventCalendar.calendar.fullCalendar('refetchEvents');
+  },
+
+  deleteEvent: function(event_id) {
+    $j.post(EventCalendar.deleteEventUrl + "/" + event_id);
   },
 
   init: function(element_id, events, month, year) {

@@ -1,4 +1,8 @@
 <div class='cms_form'>
+  <% if @event.id -%>
+    <%= link_to "Delete Event", 'javascript:void(0);', :onclick => "EventCalendar.deleteEvent(#{@event.id}); return false;" %>
+  <% end -%>
+
   <%= render :partial => 'event_form', :locals => {:event => @event} %>
 </div>
 

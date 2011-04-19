@@ -22,7 +22,7 @@ class Event::AdminController < ModuleController
   public 
 
   def self.get_event_info
-    [ { :name => 'Events', :url => { :controller => '/event/manage', :action => 'events' }, :permission => :event_manage }
+    [ { :name => 'Events', :url => { :controller => '/event/manage', :action => 'calendar' }, :permission => :event_manage }
     ]
   end
 end

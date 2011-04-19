@@ -46,10 +46,10 @@ class Event::ManageController < ModuleController
       if @event.update_attributes(params[:event])
         if request.xhr?
           render :update do |page|
-            page << "$j('#calendar').fullCalendar('refetchEvents');"
+            page << "EventCalendar.refresh();"
           end
         else
-          redirect_to :action => 'events'
+          redirect_to :action => 'calendar'
         end
         return
       end
@@ -88,6 +88,19 @@ class Event::ManageController < ModuleController
     @event = EventEvent.find params[:path][0]
     @event.move days, minutes, all_day, duration
     render :json => {:moved => true}, :content_type => 'application/json'
+  end
+
+  def delete_event
+    @event = EventEvent.find params[:path][0]
+    @event.destroy
+    if request.xhr?
+      render :update do |page|
+        page << "EventCalendar.refresh();"
+      end
+      return
+    end
+
+    redirect_to :action => 'calendar'
   end
 
   protected
