@@ -68,7 +68,7 @@ class Event::ManageController < ModuleController
     require_js '/components/event/js/fullcalendar/fullcalendar.js'
     require_js '/components/event/js/calendar.js'
     require_css '/components/event/js/fullcalendar/fullcalendar.css'
-    require_css '/components/event/js/fullcalendar/fullcalendar.print.css'
+    require_css 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/themes/cupertino/jquery-ui.css'
   end
 
   def calendar_events
@@ -84,8 +84,9 @@ class Event::ManageController < ModuleController
     days = params[:days].to_i
     minutes = params[:minutes].to_i
     all_day = params[:allDay] == 'true'
+    duration = params[:duration].to_i
     @event = EventEvent.find params[:path][0]
-    @event.move days, minutes, all_day
+    @event.move days, minutes, all_day, duration
     render :json => {:moved => true}, :content_type => 'application/json'
   end
 

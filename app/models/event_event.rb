@@ -120,13 +120,15 @@ class EventEvent < DomainModel
     data
   end
   
-  def move(days, minutes, all_day)
+  def move(days, minutes, all_day, duration)
     self.event_on += days.days
     if all_day
       self.start_time = nil
     else
       self.start_time ||= 0
       self.start_time += minutes
+      self.duration ||= 0
+      self.duration += duration
     end
     self.save
   end

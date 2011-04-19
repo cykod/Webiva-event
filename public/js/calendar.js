@@ -25,9 +25,18 @@ EventCalendar = {
   },
 
   moveEvent: function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
-    $j.getJSON(EventCalendar.moveEventUrl + "/" + event.event_id, {days: dayDelta, minutes: minuteDelta, allDay: allDay}, function(data) {
+    $j.getJSON(EventCalendar.moveEventUrl + "/" + event.event_id, {days: dayDelta, minutes: minuteDelta, allDay: allDay, duration: 0}, function(data) {
 	if(data.moved == false) {
-	  EventCalendar.refresh();
+          revertFunc();
+	}
+      });
+  },
+
+  resizeEvent: function(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view) {
+    duration = dayDelta * 24 * 60 + minuteDelta;
+    $j.getJSON(EventCalendar.moveEventUrl + "/" + event.event_id, {days: 0, minutes: 0, allDay: false, duration: duration}, function(data) {
+	if(data.moved == false) {
+          revertFunc();
 	}
       });
   },
@@ -41,6 +50,7 @@ EventCalendar = {
     EventCalendar.calendar = $j('#' + element_id);
     
     EventCalendar.calendar.fullCalendar({
+	theme: true,
 	header: {
 	  left: 'prev,next today',
 	  center: 'title',
@@ -53,7 +63,8 @@ EventCalendar = {
 	dayClick: EventCalendar.addEvent,
 	eventClick: EventCalendar.editEvent,
         loading: function(isLoading, view) { if(isLoading) { RedBox.loading(); } else { RedBox.close(); } },
-        eventDrop: EventCalendar.moveEvent
+        eventDrop: EventCalendar.moveEvent,
+        eventResize: EventCalendar.resizeEvent
       });
   }
 }
