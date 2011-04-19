@@ -14,6 +14,10 @@ EventCalendar = {
     }
   },
 
+  editEvent: function(event, jsEvent, view) {
+    SCMS.remoteOverlay(EventCalendar.addEventUrl + "/" + event.event_id);
+  },
+
   addEvent: function(date, allDay, jsEvent, view) {
     SCMS.remoteOverlay(EventCalendar.addEventUrl, {date: date.getTime() / 1000, allDay: allDay});
   },
@@ -29,7 +33,9 @@ EventCalendar = {
 	},
 	editable: true,
 	events: EventCalendar.loadEvents,
-	dayClick: EventCalendar.addEvent,  
+	dayClick: EventCalendar.addEvent,
+	eventClick: EventCalendar.editEvent,
+        loading: function(isLoading, view) { if(isLoading) { RedBox.loading(); } else { RedBox.close(); } },
 	eventDrop: function(event, delta) {
 	  alert(event.title + ' was moved ' + delta + ' days\n' +
 		'(should probably update your database)');

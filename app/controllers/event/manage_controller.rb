@@ -44,7 +44,13 @@ class Event::ManageController < ModuleController
 
     if request.post? && params[:event]
       if @event.update_attributes(params[:event])
-        redirect_to :action => 'events'
+        if request.xhr?
+          render :update do |page|
+            page << "$j('#calendar').fullCalendar('refetchEvents');"
+          end
+        else
+          redirect_to :action => 'events'
+        end
         return
       end
     end
