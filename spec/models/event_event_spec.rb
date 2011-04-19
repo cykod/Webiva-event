@@ -4,7 +4,6 @@ require File.expand_path("../../event_spec_helper", __FILE__)
 describe EventEvent do
   it "should require a name and type" do
     @event = EventEvent.new
-    @event.should have(1).error_on(:name)
     @event.should have(1).error_on(:event_type_id)
   end
   
@@ -17,6 +16,20 @@ describe EventEvent do
       expect {
         @event = @event_type.event_events.create :name => 'Testers'
       }.to change{ EventEvent.count }
+    end
+  end
+  
+  describe "Event" do
+    before(:each) do
+      @event = Factory.create :event_event
+    end
+    
+    it "should be able to create child events" do
+      expect {
+        @child_event = @event.children.create
+      }.to change{ EventEvent.count }
+      @event.name.should == @child_event.name
+      @event.description.should == @child_event.description
     end
   end
 end

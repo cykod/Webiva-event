@@ -1,5 +1,17 @@
 <% admin_form_for :event, event do |f| -%>
   <%= f.text_field :name, :required => true %>
+  <%= f.text_area :description, :rows => 4 %>
+  <%= f.text_field :permalink, :description => 'auto generated' %>
+  <%= f.filemanager_image :image_id %>
+  <%= f.header 'When' %>
+  <%= f.date_field :event_on %>
+  <%= f.select :start_time, EventEvent.start_time_select_options %>
+  <%= f.header 'Location' %>
+  <%= f.text_field :address %>
+  <%= f.text_field :address_2 %>
+  <%= f.text_field :city %>
+  <%= f.text_field :state %>
+  <%= f.text_field :zip %>
   <%= f.spacer %>
   <%= f.submit_tag event.id ? 'Update Event' : 'Add Event' %>
 <% end -%>
