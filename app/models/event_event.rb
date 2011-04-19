@@ -125,6 +125,7 @@ class EventEvent < DomainModel
     if all_day
       self.start_time = nil
     else
+      self.duration = 120 if self.start_time.nil?
       self.start_time ||= 0
       self.start_time += minutes
       self.duration ||= 0
