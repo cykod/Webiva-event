@@ -5,8 +5,8 @@ class EventEvent < DomainModel
   belongs_to :owner, :polymorphic => true
   has_end_user :end_user_id
   
-  has_many :event_bookings
-  has_many :event_repeats
+  has_many :event_bookings, :dependent => :destroy
+  has_many :event_repeats, :dependent => :delete_all
   
   handler :handler, :event, :type
   

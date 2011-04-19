@@ -1,0 +1,9 @@
+<% action_panel do |p| -%>
+  <%= p.link 'Add Event', :action => 'event', :icon => 'add.gif' %>
+<% end -%>
+
+<div class='admin_content'>
+<div id='events_table'>
+<%= render :partial => 'events_table' %>
+</div>
+</div>

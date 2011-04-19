@@ -1,0 +1,7 @@
+<% active_table_for :events_table, @active_table_output do |t| -%>
+  <% active_tr 'event', t.id do -%>
+    <td><%= link_to t.name, :action => 'event', :path => t.id %></td>
+    <td><%= h t.event_type.name %></td>
+    <td align="center"><%= t.event_at.localize(DEFAULT_DATETIME_FORMAT.t) if t.event_at %></td>
+  <% end -%>
+<% end -%>

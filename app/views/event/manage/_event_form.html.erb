@@ -1,0 +1,5 @@
+<% admin_form_for :event, event do |f| -%>
+  <%= f.text_field :name, :required => true %>
+  <%= f.spacer %>
+  <%= f.submit_tag event.id ? 'Update Event' : 'Add Event' %>
+<% end -%>
