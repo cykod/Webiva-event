@@ -1,7 +1,9 @@
 EventCalendar = {
+  calendar: null,
   events: null,
   updateUrl: null,
   addEventUrl: null,
+  moveEventUrl: null,
 
   loadEvents: function(start, end, callback) {
     if(EventCalendar.events) {
@@ -22,24 +24,36 @@ EventCalendar = {
     SCMS.remoteOverlay(EventCalendar.addEventUrl, {date: date.getTime() / 1000, allDay: allDay});
   },
 
-  init: function(element_id, events) {
-    EventCalendar.events = events;
+  moveEvent: function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
+    $j.getJSON(EventCalendar.moveEventUrl + "/" + event.event_id, {days: dayDelta, minutes: minuteDelta, allDay: allDay}, function(data) {
+	if(data.moved == false) {
+	  EventCalendar.refresh();
+	}
+      });
+  },
 
-    $j('#' + element_id).fullCalendar({
+  refresh: function() {
+    EventCalendar.calendar.fullCalendar('refetchEvents');
+  },
+
+  init: function(element_id, events, month, year) {
+    EventCalendar.events = events;
+    EventCalendar.calendar = $j('#' + element_id);
+    
+    EventCalendar.calendar.fullCalendar({
 	header: {
 	  left: 'prev,next today',
 	  center: 'title',
 	  right: 'month,agendaWeek,agendaDay'
 	},
 	editable: true,
+        month: month,
+        year: year,
 	events: EventCalendar.loadEvents,
 	dayClick: EventCalendar.addEvent,
 	eventClick: EventCalendar.editEvent,
         loading: function(isLoading, view) { if(isLoading) { RedBox.loading(); } else { RedBox.close(); } },
-	eventDrop: function(event, delta) {
-	  alert(event.title + ' was moved ' + delta + ' days\n' +
-		'(should probably update your database)');
-	}
+        eventDrop: EventCalendar.moveEvent
       });
   }
 }

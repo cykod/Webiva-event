@@ -79,11 +79,21 @@ class Event::ManageController < ModuleController
     render :json => @events, :content_type => 'application/json'
   end
 
+  def move_event
+    return render :json => {:moved => false}, :content_type => 'application/json' unless params[:path][0] && params[:days] && params[:minutes]
+    days = params[:days].to_i
+    minutes = params[:minutes].to_i
+    all_day = params[:allDay] == 'true'
+    @event = EventEvent.find params[:path][0]
+    @event.move days, minutes, all_day
+    render :json => {:moved => true}, :content_type => 'application/json'
+  end
+
   protected
   
   def get_calendar_events
-    @month = params[:path][0] || Time.now.month
-    @year = params[:path][1] || Time.now.year
+    @month = (params[:path][0] || Time.now.month).to_i
+    @year = (params[:path][1] || Time.now.year).to_i
     begin
       @current_month = Time.utc(@year, @month)
     rescue

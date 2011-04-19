@@ -100,11 +100,12 @@ class EventEvent < DomainModel
   
   def set_event_at
     self.event_at = self.event_on + self.start_time.to_i.minutes if self.event_on
-    self.duration = 1440 if self.start_time.nil?
   end
   
   def ends_at
-    self.event_at + self.duration.to_i.minutes if self.event_at
+    return nil unless self.event_at
+    return self.event_at + 1.day if self.start_time.nil? # all day event
+    self.event_at + self.duration.to_i.minutes
   end
   
   def as_json(opts={})
@@ -117,5 +118,16 @@ class EventEvent < DomainModel
     }
     data[:id] = self.parent_id if self.parent
     data
+  end
+  
+  def move(days, minutes, all_day)
+    self.event_on += days.days
+    if all_day
+      self.start_time = nil
+    else
+      self.start_time ||= 0
+      self.start_time += minutes
+    end
+    self.save
   end
 end
