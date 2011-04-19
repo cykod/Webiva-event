@@ -1,4 +1,4 @@
-<% admin_form_for :event, event do |f| -%>
+<% admin_form_for :event, event, :html => {'j-action' => (request.xhr? ? 'submitform' : nil), 'submitform' => "#{url_for :action => 'event'},#RB_window"} do |f| -%>
   <%= f.text_field :name, :required => true %>
   <%= f.text_area :description, :rows => 4 %>
   <%= f.text_field :permalink, :description => 'auto generated' %>
@@ -14,5 +14,9 @@
   <%= f.text_field :state %>
   <%= f.text_field :zip %>
   <%= f.spacer %>
-  <%= f.submit_tag event.id ? 'Update Event' : 'Add Event' %>
+  <% if request.xhr? -%>
+    <%= f.cancel_submit_buttons 'Cancel', event.id ? 'Update Event' : 'Add Event', :onclick => 'RedBox.close();' %>
+  <% else -%>
+    <%= f.submit_tag event.id ? 'Update Event' : 'Add Event' %>
+  <% end -%>
 <% end -%>

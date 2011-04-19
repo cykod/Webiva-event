@@ -106,4 +106,16 @@ class EventEvent < DomainModel
   def ends_at
     self.event_at + self.duration.to_i.minutes if self.event_at
   end
+  
+  def as_json(opts={})
+    data = {
+      :event_id => self.id,
+      :title => self.name,
+      :start => self.event_at,
+      :allDay => self.start_time ? false : true,
+      :end => self.start_time ? self.ends_at : nil
+    }
+    data[:id] = self.parent_id if self.parent
+    data
+  end
 end
