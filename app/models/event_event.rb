@@ -25,8 +25,10 @@ class EventEvent < DomainModel
   validates_numericality_of :duration, :greater_than_or_equal_to => 0
   validates_uniqueness_of :permalink
   validate :validate_event_times
+  validate :validate_custom_content
 
-
+  after_save :update_custom_content
+  
   def self.calculate_start_time_options
     options = [['All day', nil]]
     period = 15
@@ -234,5 +236,32 @@ class EventEvent < DomainModel
       self.errors.add(:ends_time, 'is invalid')
       self.errors.add(:ends_at, 'is invalid')
     end
+  end
+  
+  def content_model
+    self.event_type.content_model if self.event_type
+  end
+
+  def relational_field
+    self.event_type.relational_field if self.event_type
+  end
+  
+  def content_data
+    return nil unless self.content_model && self.relational_field
+    @content_data ||= self.content_model.content_model.where(self.relational_field.field => self.id).first || self.content_model.content_model.new(self.relational_field.field => self.id)
+  end
+  
+  def content_data=(hsh)
+    self.content_data.attributes = hsh if self.content_data
+  end
+
+  def validate_custom_content
+    if self.content_data
+      self.errors.add(:content_data, 'is invalid') unless self.content_data.valid?
+    end
+  end
+  
+  def update_custom_content
+    self.content_data.save if self.content_data
   end
 end

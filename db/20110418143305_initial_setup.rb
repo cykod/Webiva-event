@@ -6,6 +6,7 @@ class InitialSetup < ActiveRecord::Migration
       t.integer :image_id
       t.integer :content_model_id
       t.integer :relational_field_id
+      t.integer :content_publication_id
       t.string :type_handler
       t.timestamps
     end

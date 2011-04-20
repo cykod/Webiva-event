@@ -1,4 +1,7 @@
 <% admin_form_for :event, event, :html => {'j-action' => (request.xhr? ? 'submitform' : nil), 'submitform' => "#{url_for :action => 'event'},#RB_window"} do |f| -%>
+  <% if EventType.count > 1 && event.new_record? -%>
+    <%= f.select :event_type_id, EventType.select_options, {}, :required => true, 'j-action' => 'updateform', 'updateform' => "#{url_for :action => 'event', :change => 1},#RB_window" %>
+  <% end -%>
   <%= f.text_field :name, :required => true %>
   <%= f.text_area :description, :rows => 4 %>
   <%= f.text_field :permalink, :description => 'auto generated' %>
@@ -18,6 +21,12 @@
   <%= f.text_field :city %>
   <%= f.text_field :state %>
   <%= f.text_field :zip %>
+  <% if event.content_model -%>
+    <%= f.header "Custom Content: #{event.content_model.name}" %>
+    <% cms_subfields_for 'event[content_data]', event.content_data do |sf| -%>
+      <%= event.content_model.edit_form sf, :except => event.relational_field.id %>
+    <% end -%>
+  <% end -%>
   <%= f.spacer %>
   <% if request.xhr? -%>
     <%= f.cancel_submit_buttons 'Cancel', event.id ? 'Update Event' : 'Add Event', :onclick => 'RedBox.close();' %>

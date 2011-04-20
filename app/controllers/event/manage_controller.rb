@@ -44,7 +44,8 @@ class Event::ManageController < ModuleController
     end
 
     if request.post? && params[:event]
-      if @event.update_attributes(params[:event])
+      @event.attributes = params[:event]
+      if params[:commit] && @event.save
         if request.xhr?
           render :update do |page|
             page << "EventCalendar.refresh();"
@@ -54,6 +55,7 @@ class Event::ManageController < ModuleController
         end
         return
       end
+      Rails.logger.error @event.errors.inspect
     end
     
     return render :partial => 'event' if request.xhr?
