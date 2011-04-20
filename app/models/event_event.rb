@@ -174,15 +174,14 @@ class EventEvent < DomainModel
   end
   
   def as_json(opts={})
-    data = {
+    {
       :event_id => self.id,
       :title => self.name,
       :start => self.event_at,
       :allDay => self.start_time ? false : true,
-      :end => self.ends_at
+      :end => self.ends_at,
+      :parent_id => self.parent_id
     }
-    data[:id] = self.parent_id if self.parent
-    data
   end
   
   def move(days, minutes, all_day)
