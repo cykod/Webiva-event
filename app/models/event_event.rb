@@ -103,10 +103,15 @@ class EventEvent < DomainModel
   
   def set_event_at
     if @starts_at
+      if self.start_time.nil? # all day event
+        @starts_at = @starts_at.at_beginning_of_day
+        @ends_at = (@ends_at || (@starts_at + self.duration.to_i.minutes)).at_beginning_of_day + 1.day
+      end
+
       self.event_at = @starts_at
       @starts_at = nil
       self.event_on = self.event_at
-      self.start_time = (self.event_at.to_i - self.event_at.at_midnight.to_i) / 60 # in minutes
+      self.start_time = (self.event_at.to_i - self.event_at.at_midnight.to_i) / 60 if self.start_time
     else
       self.event_at = self.event_on + self.start_time.to_i.minutes if self.event_on
     end
@@ -149,7 +154,8 @@ class EventEvent < DomainModel
     if self.start_time
       self.event_at + self.duration.to_i.minutes
     else
-      self.event_at + self.duration.to_i.minutes - 1.second
+      # all day event
+      self.event_at + self.duration.to_i.minutes - 1.day
     end
   end
   
@@ -166,19 +172,19 @@ class EventEvent < DomainModel
   end
   
   def move(days, minutes, all_day)
-    self.event_on += days.days
-    if all_day
-      self.start_time = nil
+    @starts_at = self.event_at + days.days + minutes.minutes
+    if self.start_time.nil? && all_day == false && self.duration == 1440
+      @ends_at = @starts_at + 2.hours
     else
-      self.duration = 120 if self.start_time.nil?
-      self.start_time ||= 0
-      self.start_time += minutes
+      @ends_at = self.ends_at + days.days + minutes.minutes
     end
+    self.start_time = all_day ? nil : 0
     self.save
   end
   
   def resize(days, minutes)
-    self.duration += (days*1440 + minutes)
+    @ends_at = self.ends_at + days.days + minutes.minutes
+    @ends_at += 1.day if self.start_time.nil?
     self.save
   end
 end

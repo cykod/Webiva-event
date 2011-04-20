@@ -54,8 +54,8 @@ describe EventEvent do
       @event = @event_type.event_events.create :name => 'Testers', :starts_at => 1303272000, :ends_at => (1303272000 + (720 * 60))
       @event.event_at.should == @april_20th_2011
       @event.event_on.should == @april_20th_2011
-      @event.start_time.should == 0
-      @event.duration.should == 720
+      @event.start_time.should == nil
+      @event.duration.should == 1440
     end
   end
 end
