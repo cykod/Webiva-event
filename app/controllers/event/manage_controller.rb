@@ -38,15 +38,15 @@ class Event::ManageController < ModuleController
     @event = EventEvent.find(params[:path][0]) if params[:path][0]
     @event ||= EventType.default.build_event :end_user_id => myself.id, :duration => 1440
     if params[:date]
-      date = Time.at params[:date].to_i
-      @event.event_on = date
+      @event.starts_at = params[:date].to_i
+      @event.set_event_at
     elsif @event.id.nil? && params[:start] && params[:end]
-      start_at = Time.at params[:start].to_i
-      ends_at = Time.at params[:end].to_i
-      @event.event_on = start_at
-      @event.start_time = (start_at.to_i - start_at.at_midnight.to_i) / 60 # in minutes
-      @event.duration = (ends_at.to_i - start_at.to_i) / 60
-      @event.duration += 1440 if params[:allDay] == 'true'
+      @event.starts_at = params[:start].to_i
+      ends_at = params[:end].to_i
+      ends_at += 86400 if params[:allDay] == 'true'
+      @event.ends_at = ends_at
+      @event.set_event_at
+      @event.start_time = nil if params[:allDay] == 'true'
     end
 
     if request.post? && params[:event]
@@ -91,9 +91,17 @@ class Event::ManageController < ModuleController
     days = params[:days].to_i
     minutes = params[:minutes].to_i
     all_day = params[:allDay] == 'true'
-    duration = params[:duration].to_i
     @event = EventEvent.find params[:path][0]
-    @event.move days, minutes, all_day, duration
+    @event.move days, minutes, all_day
+    render :json => {:moved => true, :event => @event}, :content_type => 'application/json'
+  end
+
+  def resize_event
+    return render :json => {:moved => false}, :content_type => 'application/json' unless params[:path][0] && params[:days] && params[:minutes]
+    days = params[:days].to_i
+    minutes = params[:minutes].to_i
+    @event = EventEvent.find params[:path][0]
+    @event.resize days, minutes
     render :json => {:moved => true, :event => @event}, :content_type => 'application/json'
   end
 

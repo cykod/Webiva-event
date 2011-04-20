@@ -4,6 +4,7 @@ EventCalendar = {
   updateUrl: null,
   addEventUrl: null,
   moveEventUrl: null,
+  resizeEventUrl: null,
   deleteEventUrl: null,
 
   loadEvents: function(start, end, callback) {
@@ -26,7 +27,7 @@ EventCalendar = {
   },
 
   moveEvent: function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
-    $j.getJSON(EventCalendar.moveEventUrl + "/" + event.event_id, {days: dayDelta, minutes: minuteDelta, allDay: allDay, duration: 0}, function(data) {
+    $j.getJSON(EventCalendar.moveEventUrl + "/" + event.event_id, {days: dayDelta, minutes: minuteDelta, allDay: allDay}, function(data) {
 	if(data.moved == false) {
           revertFunc();
 	} else {
@@ -36,8 +37,7 @@ EventCalendar = {
   },
 
   resizeEvent: function(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view) {
-    var duration = dayDelta * 24 * 60 + minuteDelta;
-    $j.getJSON(EventCalendar.moveEventUrl + "/" + event.event_id, {days: 0, minutes: 0, allDay: false, duration: duration}, function(data) {
+    $j.getJSON(EventCalendar.resizeEventUrl + "/" + event.event_id, {days: dayDelta, minutes: minuteDelta}, function(data) {
 	if(data.moved == false) {
           revertFunc();
 	} else {

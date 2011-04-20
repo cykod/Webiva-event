@@ -6,6 +6,7 @@
 EventCalendar.addEventUrl = '<%= url_for :action => 'event' %>';
 EventCalendar.updateUrl = '<%= url_for :action => 'calendar_events' %>';
 EventCalendar.moveEventUrl = '<%= url_for :action => 'move_event' %>';
+EventCalendar.resizeEventUrl = '<%= url_for :action => 'resize_event' %>';
 EventCalendar.deleteEventUrl = '<%= url_for :action => 'delete_event' %>';
 EventCalendar.init('calendar', <%= @events.to_json %>, <%= @month - 1 %>, <%= @year %>);
 </script>
