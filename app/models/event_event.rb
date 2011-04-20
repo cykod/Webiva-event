@@ -92,6 +92,10 @@ class EventEvent < DomainModel
     self[:description] = description.blank? ? nil : description
   end
 
+  def all_day_event?
+    self.start_time.nil?
+  end
+
   def set_defaults
     self.published ||= false
     self.duration ||= 0
@@ -103,7 +107,7 @@ class EventEvent < DomainModel
   
   def set_event_at
     if @starts_at
-      if self.start_time.nil? # all day event
+      if self.all_day_event? # all day event
         @starts_at = @starts_at.at_beginning_of_day
         @ends_at = (@ends_at || (@starts_at + self.duration.to_i.minutes)).at_beginning_of_day + 1.day
       end
@@ -173,7 +177,7 @@ class EventEvent < DomainModel
   
   def move(days, minutes, all_day)
     @starts_at = self.event_at + days.days + minutes.minutes
-    if self.start_time.nil? && all_day == false && self.duration == 1440
+    if self.all_day_event? && all_day == false && self.duration == 1440
       @ends_at = @starts_at + 2.hours
     else
       @ends_at = self.ends_at + days.days + minutes.minutes
@@ -184,7 +188,7 @@ class EventEvent < DomainModel
   
   def resize(days, minutes)
     @ends_at = self.ends_at + days.days + minutes.minutes
-    @ends_at += 1.day if self.start_time.nil?
+    @ends_at += 1.day if self.all_day_event?
     self.save
   end
 end

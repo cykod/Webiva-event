@@ -37,13 +37,7 @@ class Event::ManageController < ModuleController
   def event
     @event = EventEvent.find(params[:path][0]) if params[:path][0]
     @event ||= EventType.default.build_event :end_user_id => myself.id, :duration => 1440
-    if params[:date]
-      @event.starts_at = params[:date].to_i
-      @event.ends_at = @event.starts_at
-      @event.duration = 0
-      @event.start_time = params[:allDay] == 'true' ? nil : 0
-      @event.set_event_at
-    elsif @event.id.nil? && params[:start] && params[:end]
+    if @event.id.nil? && params[:start] && params[:end]
       @event.starts_at = params[:start].to_i
       @event.ends_at = params[:end].to_i
       @event.start_time = params[:allDay] == 'true' ? nil : 0

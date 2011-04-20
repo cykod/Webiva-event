@@ -22,10 +22,6 @@ EventCalendar = {
     SCMS.remoteOverlay(EventCalendar.addEventUrl + "/" + event.event_id);
   },
 
-  addEvent: function(date, allDay, jsEvent, view) {
-    SCMS.remoteOverlay(EventCalendar.addEventUrl, {date: date.getTime() / 1000, allDay: allDay});
-  },
-
   moveEvent: function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
     $j.getJSON(EventCalendar.moveEventUrl + "/" + event.event_id, {days: dayDelta, minutes: minuteDelta, allDay: allDay}, function(data) {
 	if(data.moved == false) {
@@ -80,7 +76,6 @@ EventCalendar = {
         month: month,
         year: year,
 	events: EventCalendar.loadEvents,
-	dayClick: EventCalendar.addEvent,
 	eventClick: EventCalendar.editEvent,
         loading: function(isLoading, view) { if(isLoading) { RedBox.loading(); } else { RedBox.close(); } },
         eventDrop: EventCalendar.moveEvent,
