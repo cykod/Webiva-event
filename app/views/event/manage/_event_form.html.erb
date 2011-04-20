@@ -6,7 +6,7 @@
   <%= f.header 'When' %>
   <%= f.date_field :event_on %>
   <%= f.select :start_time, EventEvent.start_time_select_options %>
-  <% if event.id -%>
+  <% if event.id || (event.ends_at && ! event.all_day_event?) -%>
     <%= f.date_field :ends_on %>
     <%= f.select :ends_time, EventEvent.start_time_select_options, :label => 'End time' %>
   <% else -%>

@@ -16,15 +16,16 @@ class EventEvent < DomainModel
   handler :handler, :event, :type
   
   before_validation_on_create :set_defaults
-  
+  before_validation :set_event_at
+
   validates_presence_of :event_type_id
   validates_presence_of :permalink
   validates_presence_of :name
   validates_numericality_of :start_time, :greater_than_or_equal_to => 0, :allow_nil => true
   validates_numericality_of :duration, :greater_than_or_equal_to => 0
   validates_uniqueness_of :permalink
+  validate :validate_event_times
 
-  before_save :set_event_at
 
   def self.calculate_start_time_options
     options = [['All day', nil]]
@@ -224,5 +225,15 @@ class EventEvent < DomainModel
   
   def ends_time=(minutes)
     @ends_time = minutes.to_i
+  end
+  
+  def validate_event_times
+    if self.duration.to_i < 0 || (self.ends_at && self.event_at && self.event_at > self.ends_at)
+      self.errors.add(:event_on, 'is invalid')
+      self.errors.add(:start_time, 'is invalid')
+      self.errors.add(:ends_on, 'is invalid')
+      self.errors.add(:ends_time, 'is invalid')
+      self.errors.add(:ends_at, 'is invalid')
+    end
   end
 end
