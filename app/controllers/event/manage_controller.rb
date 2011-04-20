@@ -35,7 +35,7 @@ class Event::ManageController < ModuleController
   
   def event
     @event = EventEvent.find(params[:path][0]) if params[:path][0]
-    @event ||= EventType.default.build_event :end_user_id => myself.id, :duration => 1440
+    @event ||= EventType.default.event_events.new :end_user_id => myself.id, :duration => 1440
     if @event.id.nil? && params[:start] && params[:end]
       @event.starts_at = params[:start].to_i
       @event.ends_at = params[:end].to_i
@@ -55,11 +55,10 @@ class Event::ManageController < ModuleController
         end
         return
       end
-      Rails.logger.error @event.errors.inspect
     end
     
     return render :partial => 'event' if request.xhr?
-    
+
     cms_page_path ['Content', 'Calendar', 'Events'], 'Event'
   end
 

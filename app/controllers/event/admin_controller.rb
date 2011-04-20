@@ -19,6 +19,8 @@ class Event::AdminController < ModuleController
 
   content_model :event
 
+  register_handler :event, :type, 'Event::Type::Test'
+
   public 
 
   def self.get_event_info

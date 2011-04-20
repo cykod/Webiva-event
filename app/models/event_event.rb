@@ -248,7 +248,9 @@ class EventEvent < DomainModel
   
   def content_data
     return nil unless self.content_model && self.relational_field
-    @content_data ||= self.content_model.content_model.where(self.relational_field.field => self.id).first || self.content_model.content_model.new(self.relational_field.field => self.id)
+    return @content_data if @content_data
+    @content_data = self.content_model.content_model.where(self.relational_field.field => self.id).first unless self.new_record?
+    @content_data ||= self.content_model.content_model.new self.relational_field.field => self.id
   end
   
   def content_data=(hsh)
@@ -263,5 +265,11 @@ class EventEvent < DomainModel
   
   def update_custom_content
     self.content_data.save if self.content_data
+  end
+  
+  def type_handler
+    return self[:type_handler] if self[:type_handler]
+    self[:type_handler] = self.event_type.type_handler if self.event_type
+    self[:type_handler]
   end
 end

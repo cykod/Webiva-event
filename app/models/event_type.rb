@@ -16,12 +16,6 @@ class EventType < DomainModel
     EventType.where(:name => 'Default').order('created_at').first || EventType.create(:name => 'Default')
   end
   
-  def build_event(opts={})
-    event = self.event_events.new opts
-    event.type_handler = self.type_handler unless self.type_handler.blank?
-    event
-  end
-  
   def set_relational_field
     if self.content_model.nil?
       self.content_model_id = nil

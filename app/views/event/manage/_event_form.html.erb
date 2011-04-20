@@ -21,12 +21,21 @@
   <%= f.text_field :city %>
   <%= f.text_field :state %>
   <%= f.text_field :zip %>
+
   <% if event.content_model -%>
     <%= f.header "Custom Content: #{event.content_model.name}" %>
     <% cms_subfields_for 'event[content_data]', event.content_data do |sf| -%>
       <%= event.content_model.edit_form sf, :except => event.relational_field.id %>
     <% end -%>
   <% end -%>
+
+  <% if event.handler -%>
+    <%= f.header event.handler_name %>
+    <% cms_subfields_for 'event[data]', event.handler do |sf| -%>
+      <%= render :partial => event.handler.options_partial, :locals => event.handler.options_locals(sf) -%>
+    <% end -%>
+  <% end -%>
+
   <%= f.spacer %>
   <% if request.xhr? -%>
     <%= f.cancel_submit_buttons 'Cancel', event.id ? 'Update Event' : 'Add Event', :onclick => 'RedBox.close();' %>
