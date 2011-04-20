@@ -1,3 +1,10 @@
+<% action_panel :more => true do |p| -%>
+<% end -%>
+
+<% more_action_panel do |p| -%>
+  <%= p.link 'Event Types', :action => 'event_types', :icon => 'view.gif' %>
+<% end -%>
+
 <div class='admin_content'>
 <div id="calendar" style="width:900px; margin: 0 auto;"></div>
 </div>

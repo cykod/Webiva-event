@@ -5,6 +5,7 @@ class InitialSetup < ActiveRecord::Migration
       t.text :description
       t.integer :image_id
       t.integer :content_model_id
+      t.integer :relational_field_id
       t.string :type_handler
       t.timestamps
     end

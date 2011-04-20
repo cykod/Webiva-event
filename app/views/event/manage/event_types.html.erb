@@ -1,0 +1,12 @@
+<% action_panel :more => true do |p| -%>
+<% end -%>
+
+<% more_action_panel do |p| -%>
+  <%= p.link 'Add Event Type', :action => 'event_type', :icon => 'add.gif' %>
+<% end -%>
+
+<div class='admin_content'>
+<div id='event_types_table'>
+<%= render :partial => 'event_types_table' %>
+</div>
+</div>

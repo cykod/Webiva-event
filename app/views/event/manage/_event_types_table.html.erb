@@ -1,0 +1,8 @@
+<% active_table_for :event_types_table, @active_table_output do |t| -%>
+  <% active_tr 'type', t.id do -%>
+    <td><%= link_to t.name, :action => 'event_type', :path => t.id %></td>
+    <td><%= h t.description %></td>
+    <td align="center"><%= t.created_at.localize(DEFAULT_DATETIME_FORMAT.t) %></td>
+    <td align="center"><%= t.updated_at.localize(DEFAULT_DATETIME_FORMAT.t) %></td>
+  <% end -%>
+<% end -%>

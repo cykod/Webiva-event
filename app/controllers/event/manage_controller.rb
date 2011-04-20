@@ -8,10 +8,9 @@ class Event::ManageController < ModuleController
   cms_admin_paths 'content',
                   'Content'  => {:controller => '/content'},
                   'Events'   => {:action => 'events'},
-                  'Events Calendar'   => {:action => 'calendar'}
+                  'Event Types'   => {:action => 'event_types'},
+                  'Calendar'   => {:action => 'calendar'}
 
-
-  # need to include
   active_table :events_table,
                 EventEvent,
                 [ :name,
@@ -30,7 +29,7 @@ class Event::ManageController < ModuleController
   end
   
   def events
-    cms_page_path ['Content'], 'Events'
+    cms_page_path ['Content', 'Calendar'], 'Events'
     display_events_table(false)
   end
   
@@ -59,13 +58,13 @@ class Event::ManageController < ModuleController
     
     return render :partial => 'event' if request.xhr?
     
-    cms_page_path ['Content', 'Events'], 'Event'
+    cms_page_path ['Content', 'Calendar', 'Events'], 'Event'
   end
 
   def calendar
     get_calendar_events
 
-    cms_page_path ['Content', 'Events'], 'Events Calendar'
+    cms_page_path ['Content'], 'Calendar'
     
     require_js '/components/event/js/fullcalendar/fullcalendar.js'
     require_js '/components/event/js/calendar.js'
@@ -111,6 +110,41 @@ class Event::ManageController < ModuleController
     end
 
     redirect_to :action => 'calendar'
+  end
+
+  active_table :event_types_table,
+                EventType,
+                [ :name,
+                  :description,
+                  :created_at,
+                  :updated_at
+                ]
+
+  def display_event_types_table(display=true)
+    active_table_action 'event' do |act,ids|
+    end
+
+    @active_table_output = event_types_table_generate params, :order => 'event_types.created_at DESC'
+
+    render :partial => 'event_types_table' if display
+  end
+  
+  def event_types
+    display_event_types_table(false)
+    cms_page_path ['Content', 'Calendar'], 'Event Types'
+  end
+  
+  def event_type
+    @event_type = EventType.find(params[:path][0]) if params[:path][0]
+    @event_type ||= EventType.new
+
+    if request.post? && params[:event_type]
+      if @event_type.update_attributes(params[:event_type])
+        redirect_to :action => 'event_types'
+      end
+    end
+    
+    cms_page_path ['Content', 'Calendar'], 'Event Types'
   end
 
   protected

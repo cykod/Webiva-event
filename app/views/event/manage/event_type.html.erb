@@ -1,0 +1,10 @@
+<div class='admin_content'>
+<% admin_form_for :event_type, @event_type do |f| -%>
+  <%= f.text_field :name, :required => true %>
+  <%= f.text_area :description, :rows => 4 %>
+  <%= f.filemanager_image :image_id %>
+  <%= f.select :type_handler, EventEvent.handler_select_options_with_nil %>
+  <%= f.select :content_model_id, ContentModel.select_options_with_nil %>
+  <%= f.submit_tag @event_type.id ? 'Update Event Type' : 'Add Event Type' %>
+<% end -%>
+</div>
