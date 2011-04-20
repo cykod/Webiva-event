@@ -6,7 +6,12 @@
   <%= f.header 'When' %>
   <%= f.date_field :event_on %>
   <%= f.select :start_time, EventEvent.start_time_select_options %>
-  <%= f.select :duration, EventEvent.duration_select_options %>
+  <% if event.id -%>
+    <%= f.date_field :ends_on %>
+    <%= f.select :ends_time, EventEvent.start_time_select_options, :label => 'End time' %>
+  <% else -%>
+    <%= f.select :duration, EventEvent.duration_select_options %>
+  <% end -%>
   <%= f.header 'Location' %>
   <%= f.text_field :address %>
   <%= f.text_field :address_2 %>

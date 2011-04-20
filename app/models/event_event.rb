@@ -1,5 +1,5 @@
 class EventEvent < DomainModel
-  attr_accessor :starts_at, :ends_at
+  attr_accessor :starts_at, :ends_at, :ends_on, :ends_time
 
   include ModelExtension::HandlerExtension
 
@@ -21,6 +21,7 @@ class EventEvent < DomainModel
   validates_presence_of :permalink
   validates_presence_of :name
   validates_numericality_of :start_time, :greater_than_or_equal_to => 0, :allow_nil => true
+  validates_numericality_of :duration, :greater_than_or_equal_to => 0
   validates_uniqueness_of :permalink
 
   before_save :set_event_at
@@ -106,6 +107,14 @@ class EventEvent < DomainModel
   end
   
   def set_event_at
+    if @ends_on && @ends_time
+      @ends_at = @ends_on + @ends_time.to_i.minutes
+      if self.all_day_event?
+        @ends_at = @ends_at.at_beginning_of_day
+        @ends_at += 1.day unless @starts_at
+      end
+    end
+
     if @starts_at
       if self.all_day_event? # all day event
         @starts_at = @starts_at.at_beginning_of_day
@@ -190,5 +199,30 @@ class EventEvent < DomainModel
     @ends_at = self.ends_at + days.days + minutes.minutes
     @ends_at += 1.day if self.all_day_event?
     self.save
+  end
+  
+  def ends_on
+    self.ends_at
+  end
+  
+  def ends_on=(time)
+    @ends_on = begin
+                 case time
+                 when Integer
+                   Time.at(time).at_beginning_of_day
+                 when String
+                   Time.parse(time).at_beginning_of_day
+                 when Time
+                   time.at_beginning_of_day
+                 end
+               end
+  end
+
+  def ends_time
+    (self.ends_at.to_i - self.ends_at.at_midnight.to_i) / 60
+  end
+  
+  def ends_time=(minutes)
+    @ends_time = minutes.to_i
   end
 end
