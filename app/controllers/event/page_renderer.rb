@@ -27,7 +27,10 @@ class Event::PageRenderer < ParagraphRenderer
 
   def event_list
     @options = paragraph_options :event_list
-
+    
+    @start_date = @options.event_start_date
+    @events = @options.events
+    
     render_paragraph :feature => :event_page_event_list
   end
 
@@ -43,6 +46,6 @@ class Event::PageRenderer < ParagraphRenderer
     end
     @from = @current_month - 1.month
     @to = (@current_month + 1.month).at_end_of_month
-    @events = EventEvent.where(:event_at => @from..@to).order('event_at').all
+    @events = EventEvent.published.where(:event_at => @from..@to).order('event_at').all
   end
 end

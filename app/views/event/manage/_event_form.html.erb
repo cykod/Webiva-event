@@ -6,6 +6,10 @@
   <%= f.text_area :description, :rows => 4 %>
   <%= f.text_field :permalink, :description => 'auto generated' %>
   <%= f.filemanager_image :image_id %>
+  <%= f.yes_no :published %>
+  <%= f.yes_no :notify_organizer %>
+  <%= f.yes_no :private_event %>
+  <%= f.yes_no :directory %>
   <%= f.header 'When' %>
   <%= f.date_field :event_on %>
   <%= f.select :start_time, EventEvent.start_time_select_options %>

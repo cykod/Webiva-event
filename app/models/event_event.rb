@@ -29,6 +29,8 @@ class EventEvent < DomainModel
 
   after_save :update_custom_content
   
+  named_scope :published, where(:published => true)
+
   def self.calculate_start_time_options
     options = [['All day', nil]]
     period = 15
@@ -78,32 +80,20 @@ class EventEvent < DomainModel
   @@duration_options = self.calculate_duration_options
   has_options :duration, @@duration_options
 
-  def name
-    return self[:name] if self[:name]
-    self.parent.name if self.parent
-  end
-
-  def name=(name)
-    self[:name] = name.blank? ? nil : name
-  end
-
-  def description
-    return self[:description] if self[:description]
-    self.parent.description if self.parent
-  end
-
-  def description=(description)
-    self[:description] = description.blank? ? nil : description
-  end
-
   def all_day_event?
     self.start_time.nil?
   end
 
   def set_defaults
+    if self.parent
+      self.event_type_id ||= self.parent.event_type_id
+      self.published ||= self.parent.published
+      self.owner_type ||= self.parent.owner_type
+      self.owner_id ||= self.parent.owner_id
+    end
+
     self.published ||= false
     self.duration ||= 0
-    self.event_type_id ||= self.parent.event_type_id if self.parent
     self.permalink = DomainModel.generate_hash if self.permalink.blank?
     self.type_handler = self.event_type.type_handler if self.event_type
     true
@@ -178,7 +168,7 @@ class EventEvent < DomainModel
   def as_json(opts={})
     {
       :event_id => self.id,
-      :title => self.name,
+      :title => self.published ? self.name : "* #{self.name}",
       :start => self.event_at,
       :allDay => self.start_time ? false : true,
       :end => self.ends_at,
@@ -271,5 +261,16 @@ class EventEvent < DomainModel
     return self[:type_handler] if self[:type_handler]
     self[:type_handler] = self.event_type.type_handler if self.event_type
     self[:type_handler]
+  end
+
+  def get_field(fld)
+    return self[fld] unless self[fld].blank?
+    self.parent.send(fld) if self.parent
+  end
+
+  %w(name description address address_2 city state zip lon lat image_id).each do |fld|
+    self.send(:define_method, fld) do
+      get_field fld
+    end
   end
 end
