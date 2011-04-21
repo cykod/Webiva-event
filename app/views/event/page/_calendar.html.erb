@@ -1,0 +1,15 @@
+<%
+element_id = "webiva_calendar_#{paragraph.id}"
+-%>
+<%= content_tag :div, '', :id => element_id %>
+<script>
+ $('#<%= element_id %>').fullCalendar({
+        theme: true,
+	header: {
+	  left: 'prev,next today',
+	  center: 'title',
+	  right: 'month,agendaWeek,agendaDay'
+	},
+	events: '<%= events_url %>'
+});
+</script>

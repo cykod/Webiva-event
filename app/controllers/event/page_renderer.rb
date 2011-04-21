@@ -2,11 +2,18 @@ class Event::PageRenderer < ParagraphRenderer
 
   features '/event/page_feature'
 
-  paragraph :calendar
+  paragraph :calendar, :ajax => true
   paragraph :event_list
 
   def calendar
     @options = paragraph_options :calendar
+
+    get_events
+    
+    if ajax?
+      render_paragraph :text => @events.to_json(:public => true, :user => myself), :content_type => 'application/json'
+      return
+    end
 
     require_js 'http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js'
     require_js 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js'
@@ -22,5 +29,20 @@ class Event::PageRenderer < ParagraphRenderer
     @options = paragraph_options :event_list
 
     render_paragraph :feature => :event_page_event_list
+  end
+
+  def get_events
+    @month = Time.now.month.to_i
+    @year = Time.now.year.to_i
+    begin
+      @current_month = Time.utc(@year, @month)
+    rescue
+      @current_month = Time.now.at_beginning_of_month
+      @month = @current_month.month
+      @year = @current_month.year
+    end
+    @from = @current_month - 1.month
+    @to = (@current_month + 1.month).at_end_of_month
+    @events = EventEvent.where(:event_at => @from..@to).order('event_at').all
   end
 end

@@ -1,13 +1,12 @@
 class Event::PageFeature < ParagraphFeature
 
   feature :event_page_calendar, :default_feature => <<-FEATURE
-    <div id="webiva_event_calendar"></div>
     <cms:calendar_settings/>
   FEATURE
 
   def event_page_calendar_feature(data)
     webiva_feature(:event_page_calendar,data) do |c|
-      c.define_tag('calendar_settings') { |t| render_to_string :partial => '/event/page/calendar_settings', :locals => {:options => data[:options]} }
+      c.define_tag('calendar_settings') { |t| render_to_string :partial => '/event/page/calendar', :locals => {:options => data[:options], :events => data[:events], :events_url => ajax_url, :paragraph => paragraph} }
     end
   end
 
