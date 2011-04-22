@@ -48,9 +48,8 @@ class InitialSetup < ActiveRecord::Migration
       t.datetime :last_unconfirmed_check
 
       t.boolean :notify_organizer, :default => true
-      t.boolean :private_event, :default => false
       t.boolean :directory, :default => true
-      
+      t.boolean :allow_guests, :default => false
       t.boolean :published, :default => false
       
       t.string :type_handler
@@ -63,10 +62,9 @@ class InitialSetup < ActiveRecord::Migration
       t.integer :event_event_id
       t.integer :end_user_id
 
-      t.boolean :email_list, :default => false
-      
-      t.datetime :valid_until
-      t.boolean :confirmed, :default => false
+      t.boolean :responded, :default => false
+      t.boolean :attending, :default => false
+      t.integer :number, :default => 1
       
       t.timestamps
     end

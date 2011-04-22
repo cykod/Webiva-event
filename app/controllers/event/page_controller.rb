@@ -4,6 +4,7 @@ class Event::PageController < ParagraphController
   
   editor_for :calendar, :name => "Calendar", :feature => :event_page_calendar
   editor_for :event_list, :name => "Event list", :feature => :event_page_event_list
+  editor_for :event_details, :name => "Event details", :feature => :event_page_event_details
 
   class CalendarOptions < HashModel
     # Paragraph Options
@@ -48,7 +49,7 @@ class Event::PageController < ParagraphController
     end
     
     def event_scope
-      scope = EventEvent.published.where(:event_at => self.event_range).order('event_at')
+      scope = EventEvent.published.directory.where(:event_at => self.event_range).order('event_at')
       scope = scope.where(:event_type_id => self.event_type_id) if self.event_type_id
       scope
     end
@@ -56,5 +57,11 @@ class Event::PageController < ParagraphController
     def events(opts={})
       self.event_scope.all
     end
+  end
+  
+  class EventDetailsOptions < HashModel
+
+    options_form(
+                 )
   end
 end

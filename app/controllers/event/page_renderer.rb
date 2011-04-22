@@ -4,6 +4,7 @@ class Event::PageRenderer < ParagraphRenderer
 
   paragraph :calendar, :ajax => true
   paragraph :event_list
+  paragraph :event_details
 
   def calendar
     @options = paragraph_options :calendar
@@ -32,6 +33,21 @@ class Event::PageRenderer < ParagraphRenderer
     @events = @options.events
     
     render_paragraph :feature => :event_page_event_list
+  end
+
+  def event_details
+    @options = paragraph_options :event_details
+    
+    @event = EventEvent.published.first
+    @booking = @event.event_bookings.where(:end_user_id => myself.id).first if myself.id
+    @booking ||= @event.event_bookings.new :end_user_id => myself.id
+
+    if request.post? && ! editor? && params[:booking]
+      @booking.responded = true
+      @updated = @booking.update_attributes params[:booking].slice(:email, :number, :attending)
+    end
+
+    render_paragraph :feature => :event_page_event_details
   end
 
   def get_events

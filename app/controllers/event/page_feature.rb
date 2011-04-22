@@ -28,6 +28,65 @@ class Event::PageFeature < ParagraphFeature
     end
   end
   
+ feature :event_page_event_details, :default_feature => <<-FEATURE
+ <cms:event>
+    <h2><cms:name/></h2>
+    <p><cms:description/></p>
+    <cms:updated>
+      Thank you for your response.
+    </cms:updated>
+    <cms:not_updated>
+      <cms:form>
+      <ul>
+        <cms:not_logged_in>
+          <li><cms:name_label/> <cms:name/></li>
+          <li><cms:email_label/> <cms:email/></li>
+        </cms:not_logged_in>
+        <cms:logged_in>
+          <cms:booking>
+          <cms:responded>
+            <li><cms:name/>, do you need to change your response?</li>
+          </cms:responded>
+          <cms:not_responded>
+            <li><cms:name/>, will you be attending this event?</li>
+          </cms:not_responded>
+          </cms:booking>
+        </cms:logged_in>
+        <li><cms:attending_label/> <cms:attending/></li>
+        <li><cms:number_label/> <cms:number/></li>
+        <li><label>&nbsp;</label> <cms:submit/></li>
+      </ul>
+      </cms:form>
+    </cms:not_updated>
+  <cms:bookings>
+    <div>Attendees</div>
+    <ul>
+    <cms:booking>
+      <li><cms:name/>
+          <cms:attending>
+            yes
+            <cms:has_guests>+<cms:guests/> guests</cms:has_guests>
+          </cms:attending>
+          <cms:not_attending>no</cms:not_attending>
+      </li>
+    </cms:booking>
+    </ul>
+  </cms:bookings>
+  </cms:event>
+  FEATURE
+
+  def event_page_event_details_feature(data)
+    webiva_feature(:event_page_event_details,data) do |c|
+      c.expansion_tag('logged_in') { |t| myself.id }
+      c.expansion_tag('updated') { |t| data[:updated] }
+      c.expansion_tag('event') { |t| t.locals.event = data[:event] }
+      self.event_features c, data
+      self.booking_form_feature c, data
+      c.loop_tag('event:booking') { |t| t.locals.event.attendance }
+      c.booking_features c, data, 'booking'
+    end
+  end
+
   def event_features(c, data, base='event')
     c.h_tag("#{base}:name") { |t| t.locals.event.name }
     c.h_tag("#{base}:description") { |t| t.locals.event.description }
@@ -44,5 +103,27 @@ class Event::PageFeature < ParagraphFeature
     c.value_tag("#{base}:spaces") { |t| t.locals.event.spaces }
     c.value_tag("#{base}:bookings") { |t| t.locals.event.bookings }
     c.value_tag("#{base}:unconfirmed_bookings") { |t| t.locals.event.unconfirmed_bookings }
+    c.expansion_tag("#{base}:ended") { |t| t.locals.event.ended? }
+    c.expansion_tag("#{base}:started") { |t| t.locals.event.started? }
+  end
+  
+  def booking_form_feature(c, data, base='event')
+    c.form_for_tag("#{base}:form", 'booking') { |t| t.locals.booking = data[:booking] }
+    c.field_tag("#{base}:form:email")
+    c.field_tag("#{base}:form:name")
+    c.field_tag("#{base}:form:number", :control => 'select', :options => (1..5).to_a, :label => "Number attending")
+    c.field_tag("#{base}:form:attending", :control => 'yes_no')
+    c.button_tag("#{base}:form:submit")
+    c.expansion_tag("#{base}:form:booking") { |t| t.locals.booking }
+    c.booking_features c, data, "#{base}:form:booking"
+  end
+  
+  def booking_features(c, data, base='booking')
+    c.h_tag("#{base}:name") { |t| t.locals.booking.name }
+    c.expansion_tag("#{base}:attending") { |t| t.locals.booking.attending }
+    c.expansion_tag("#{base}:responded") { |t| t.locals.booking.responded }
+    c.expansion_tag("#{base}:has_guests") { |t| t.locals.booking.number > 1 }
+    c.value_tag("#{base}:number") { |t| t.locals.booking.number }
+    c.value_tag("#{base}:guests") { |t| t.locals.booking.number - 1 }
   end
 end

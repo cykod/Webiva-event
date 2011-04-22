@@ -30,6 +30,7 @@ class EventEvent < DomainModel
   after_save :update_custom_content
   
   named_scope :published, where(:published => true)
+  named_scope :directory, where(:directory => true) # wether or not to display the event in the list paragraph
 
   def self.calculate_start_time_options
     options = [['All day', nil]]
@@ -218,6 +219,17 @@ class EventEvent < DomainModel
     @ends_time = minutes.to_i
   end
   
+  def ended?
+    return false unless self.ends_at
+    time = self.ends_at
+    time += 1.day if self.all_day_event?
+    time <= Time.now
+  end
+
+  def started?
+    self.event_at && self.event_at > Time.now
+  end
+
   def validate_event_times
     if self.duration.to_i < 0 || (self.ends_at && self.event_at && self.event_at > self.ends_at)
       self.errors.add(:event_on, 'is invalid')
@@ -272,5 +284,18 @@ class EventEvent < DomainModel
     self.send(:define_method, fld) do
       get_field fld
     end
+  end
+  
+  def attendance
+    @attendance ||= self.event_bookings.includes(:end_user).order('responded DESC, attending DESC').all
+  end
+  
+  def update_attendance
+    stats = self.event_bookings.stats.all
+    stats = stats[0]
+    self.bookings = stats.attributes['bookings']
+    self.unconfirmed_bookings = stats.attributes['unconfirmed_bookings']
+    self.last_unconfirmed_check = Time.now
+    self.save
   end
 end
