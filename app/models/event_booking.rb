@@ -1,11 +1,14 @@
 class EventBooking < DomainModel
+  class NoSpaceException < Exception; end
+  
   attr_accessor :email, :name
 
   belongs_to :event_event
-  has_end_user :end_user_id
+  has_end_user :end_user_id, :name_column => :name
 
-  validates_presence_of :event_event_id
   validate :validate_user
+  validates_presence_of :event_event_id
+  validates_uniqueness_of :end_user_id, :scope => :event_event_id
   validate :validate_attendance
 
   before_save :set_end_user
@@ -31,9 +34,11 @@ class EventBooking < DomainModel
   end
 
   def validate_user
-    if @email.blank? && self.end_user.nil?
-      self.errors.add(:end_user_id, 'is missing')
-      self.errors.add(:email, 'is missing')
+    user = EndUser.where(:email => @email).first unless @email.blank?
+    self.end_user_id = user.id if user
+    if self.end_user.nil?
+      self.errors.add(:email, 'is missing') if @email.blank?
+      self.errors.add(:name, 'is missing') if @name.blank?
     end
   end
 
@@ -53,12 +58,12 @@ class EventBooking < DomainModel
       if self.new_record?
         if self.attending
           self.total_booked = self.number
-          raise "No space left" unless self.event_event.remove_space(self.total_booked)
+          raise NoSpaceException.new("No space left") unless self.event_event.remove_space(self.total_booked)
         end
       elsif self.attending
         amount = self.number - self.total_booked
         if amount > 0
-          raise "No space left" unless self.event_event.remove_space(amount)
+          raise NoSpaceException.new("No space left") unless self.event_event.remove_space(amount)
         elsif amount < 0
           self.event_event.add_space(amount.abs)
         end

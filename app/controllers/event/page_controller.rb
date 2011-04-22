@@ -9,7 +9,9 @@ class Event::PageController < ParagraphController
     :event => [[:permalink, 'Event Url', :path]]
   }
   editor_for :event_details, :name => "Event Details", :feature => :event_page_event_details, :inputs => {
-    :input => [[:permalink, 'Event Url', :path]]
+    :input => [[:permalink, 'Event Url', :path]],
+    :book_permission => [[:target, 'Book Permission Target', :target],
+                         [:content, 'Book Permission Content', :content]]
   }
   
   class CalendarOptions < HashModel

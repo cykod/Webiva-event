@@ -55,12 +55,16 @@ class Event::PageRenderer < ParagraphRenderer
     
     return render_paragraph :nothing => true unless @event
     
-    @booking = @event.event_bookings.where(:end_user_id => myself.id).first if myself.id
-    @booking ||= @event.event_bookings.new :end_user_id => myself.id
+    conn_type, conn_id = page_connection :book_permission
+    
+    if conn_id || editor?
+      @booking = @event.event_bookings.where(:end_user_id => myself.id).first if myself.id
+      @booking ||= @event.event_bookings.new :end_user_id => myself.id
 
-    if request.post? && ! editor? && params[:booking]
-      @booking.responded = true
-      @updated = @booking.update_attributes params[:booking].slice(:email, :number, :attending)
+      if request.post? && ! editor? && params[:booking]
+        @booking.responded = true
+        @updated = @booking.update_attributes params[:booking].slice(:email, :name, :number, :attending)
+      end
     end
 
     render_paragraph :feature => :event_page_event_details
