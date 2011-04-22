@@ -14,7 +14,7 @@ class Event::PageFeature < ParagraphFeature
   <cms:events>
   <ul>
     <cms:event>
-    <li><cms:name/> on <cms:event_at/><br/><cms:description/></li>
+    <li><cms:event_link><cms:name/></cms:event_link> on <cms:event_at/><br/><cms:description/></li>
     </cms:event>
   </ul>
   </cms:events>
@@ -108,6 +108,7 @@ class Event::PageFeature < ParagraphFeature
     c.expansion_tag("#{base}:ended") { |t| t.locals.event.ended? }
     c.expansion_tag("#{base}:started") { |t| t.locals.event.started? }
     c.expansion_tag("#{base}:allow_guests") { |t| t.locals.event.allow_guests }
+    c.link_tag("#{base}:event") { |t| data[:options].event_page_node.link(t.locals.event.permalink) if data[:options].event_page_node }
   end
   
   def booking_form_feature(c, data, base='event')

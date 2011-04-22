@@ -29,16 +29,32 @@ class Event::PageRenderer < ParagraphRenderer
   def event_list
     @options = paragraph_options :event_list
     
+    conn_type, conn_id = page_connection(:event)
+    return render_paragraph :nothing => true if conn_type == :permalink && ! conn_id.blank? && ! editor?
+
     @start_date = @options.event_start_date
-    @events = @options.events
+    scope = @options.event_scope
+    conn_type, conn_id = page_connection :target
+    scope = scope.for_owner(conn_id) if conn_id
+    @events = scope.all
     
     render_paragraph :feature => :event_page_event_list
   end
 
   def event_details
     @options = paragraph_options :event_details
+    @options.event_page_id = site_node.id
+
+    if editor?
+      @event = EventEvent.first
+      return render_paragraph :text => 'No events found' unless @event
+    else
+      conn_type, conn_id = page_connection
+      @event = EventEvent.where(:permalink => conn_id).first if conn_type == :permalink
+    end
     
-    @event = EventEvent.published.first
+    return render_paragraph :nothing => true unless @event
+    
     @booking = @event.event_bookings.where(:end_user_id => myself.id).first if myself.id
     @booking ||= @event.event_bookings.new :end_user_id => myself.id
 

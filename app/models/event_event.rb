@@ -33,6 +33,17 @@ class EventEvent < DomainModel
   named_scope :published, where(:published => true)
   named_scope :directory, where(:directory => true) # wether or not to display the event in the list paragraph
 
+  def self.for_owner(owner)
+    case owner
+    when DomainModel
+      self.where(:owner_type => owner.class.to_s.underscore, :owner_id => owner.id);
+    when Array
+      self.where(:owner_type => owner[0].to_s.underscore, :owner_id => owner[1]);
+    else
+      self
+    end
+  end
+
   def self.calculate_start_time_options
     options = [['All day', nil]]
     period = 15

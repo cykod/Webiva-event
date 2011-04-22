@@ -3,22 +3,37 @@ class Event::PageController < ParagraphController
   editor_header 'Event Paragraphs'
   
   editor_for :calendar, :name => "Calendar", :feature => :event_page_calendar
-  editor_for :event_list, :name => "Event list", :feature => :event_page_event_list
-  editor_for :event_details, :name => "Event details", :feature => :event_page_event_details
-
+  editor_for :event_list, :name => "Event List", :feature => :event_page_event_list, :inputs => {
+    :target => [[:target, 'Target', :target],
+                [:content, 'Content', :content]],
+    :event => [[:permalink, 'Event Url', :path]]
+  }
+  editor_for :event_details, :name => "Event Details", :feature => :event_page_event_details, :inputs => {
+    :input => [[:permalink, 'Event Url', :path]]
+  }
+  
   class CalendarOptions < HashModel
-    # Paragraph Options
-    # attributes :success_page_id => nil
+    attributes :event_type_id => nil, :event_page_id => nil
+
+    page_options :event_page_id
 
     options_form(
-                 # fld(:success_page_id, :page_selector) # <attribute>, <form element>, <options>
+                 fld(:event_page_id, :page_selector),
+                 fld(:event_type_id, :select, :options => :event_type_options)
                  )
+
+    def event_type_options
+      [['--All event types--', nil]] + EventType.select_options
+    end
   end
 
   class EventListOptions < HashModel
-    attributes :event_type_id => nil, :relative_date_start => 'now', :relative_date_end => '1'
+    attributes :event_type_id => nil, :relative_date_start => 'now', :relative_date_end => '1', :event_page_id => nil
 
+    page_options :event_page_id
+    
     options_form(
+                 fld(:event_page_id, :page_selector),
                  fld(:event_type_id, :select, :options => :event_type_options),
                  fld(:relative_date_start, :select, :options => :relative_date_start_options, :label => "Display events from"),
                  fld(:relative_date_end, :select, :options => :relative_date_end_options, :label => "Display events to")
@@ -60,8 +75,12 @@ class Event::PageController < ParagraphController
   end
   
   class EventDetailsOptions < HashModel
-
+    attributes :event_list_page_id => nil, :event_page_id => nil
+    
+    page_options :event_list_page_id, :event_page_id
+    
     options_form(
+                 fld(:event_list_page_id, :page_selector)
                  )
   end
 end
