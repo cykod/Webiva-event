@@ -53,7 +53,9 @@ class Event::PageFeature < ParagraphFeature
           </cms:booking>
         </cms:logged_in>
         <li><cms:attending_label/> <cms:attending/></li>
-        <li><cms:number_label/> <cms:number/></li>
+        <cms:allow_guests>
+          <li><cms:number_label/> <cms:number/></li>
+        </cms:allow_guests>
         <li><label>&nbsp;</label> <cms:submit/></li>
       </ul>
       </cms:form>
@@ -105,6 +107,7 @@ class Event::PageFeature < ParagraphFeature
     c.value_tag("#{base}:unconfirmed_bookings") { |t| t.locals.event.unconfirmed_bookings }
     c.expansion_tag("#{base}:ended") { |t| t.locals.event.ended? }
     c.expansion_tag("#{base}:started") { |t| t.locals.event.started? }
+    c.expansion_tag("#{base}:allow_guests") { |t| t.locals.event.allow_guests }
   end
   
   def booking_form_feature(c, data, base='event')

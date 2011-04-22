@@ -10,6 +10,7 @@
   <%= f.yes_no :notify_organizer %>
   <%= f.yes_no :directory %>
   <%= f.yes_no :allow_guests %>
+  <%= f.text_field :total_allowed %>
   <%= f.header 'When' %>
   <%= f.date_field :event_on %>
   <%= f.select :start_time, EventEvent.start_time_select_options %>

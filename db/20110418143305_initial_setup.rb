@@ -42,7 +42,8 @@ class InitialSetup < ActiveRecord::Migration
       
       t.integer :duration
       
-      t.integer :spaces
+      t.integer :total_allowed, :default => 0
+      t.integer :spaces_left, :default => 0
       t.integer :bookings, :default => 0
       t.integer :unconfirmed_bookings, :default => 0
       t.datetime :last_unconfirmed_check
@@ -64,6 +65,7 @@ class InitialSetup < ActiveRecord::Migration
 
       t.boolean :responded, :default => false
       t.boolean :attending, :default => false
+      t.integer :total_booked, :default => 0
       t.integer :number, :default => 1
       
       t.timestamps

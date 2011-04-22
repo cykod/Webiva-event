@@ -28,7 +28,8 @@ class EventEvent < DomainModel
   validate :validate_custom_content
 
   after_save :update_custom_content
-  
+  after_save :update_spaces
+
   named_scope :published, where(:published => true)
   named_scope :directory, where(:directory => true) # wether or not to display the event in the list paragraph
 
@@ -290,12 +291,36 @@ class EventEvent < DomainModel
     @attendance ||= self.event_bookings.includes(:end_user).order('responded DESC, attending DESC').all
   end
   
-  def update_attendance
-    stats = self.event_bookings.stats.all
-    stats = stats[0]
-    self.bookings = stats.attributes['bookings']
-    self.unconfirmed_bookings = stats.attributes['unconfirmed_bookings']
-    self.last_unconfirmed_check = Time.now
-    self.save
+  def can_book?
+    self.spaces_left > 0
+  end
+
+  def add_space(quantity)
+    quantity = quantity.to_i
+    affected_rows = self.connection.update "UPDATE event_events SET spaces_left = spaces_left + #{quantity}, bookings = bookings - #{quantity} WHERE id = #{self.id}"
+    return false unless affected_rows == 1
+    self.spaces_left += quantity
+    self.bookings -= quantity
+    true
+  end
+
+  def remove_space(quantity)
+    quantity = quantity.to_i
+    affected_rows = self.connection.update "UPDATE event_events SET spaces_left = spaces_left - #{quantity}, bookings = bookings + #{quantity} WHERE id = #{self.id} AND (spaces_left - #{quantity}) >= 0"
+    return false unless affected_rows == 1
+    self.spaces_left -= quantity
+    self.bookings += quantity
+    true
+  end
+  
+  def total_allowed=(amount)
+    amount = amount.to_i
+    @total_allowed_changed = amount - self[:total_allowed].to_i
+    self[:total_allowed] = amount
+  end
+  
+  def update_spaces
+    return if @total_allowed_changed.to_i == 0
+    self.connection.update "UPDATE event_events SET spaces_left = spaces_left + #{@total_allowed_changed} WHERE id = #{self.id}"
   end
 end
