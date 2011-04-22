@@ -2,7 +2,11 @@ class Event::PageController < ParagraphController
 
   editor_header 'Event Paragraphs'
   
-  editor_for :calendar, :name => "Calendar", :feature => :event_page_calendar
+  editor_for :calendar, :name => "Calendar", :feature => :event_page_calendar, :inputs => {
+    :target => [[:target, 'Target', :target],
+                [:content, 'Content', :content]],
+    :event => [[:permalink, 'Event Url', :path]]
+  }
   editor_for :event_list, :name => "Event List", :feature => :event_page_event_list, :inputs => {
     :target => [[:target, 'Target', :target],
                 [:content, 'Content', :content]],
@@ -13,29 +17,55 @@ class Event::PageController < ParagraphController
     :book_permission => [[:target, 'Book Permission Target', :target],
                          [:content, 'Book Permission Content', :content]]
   }
+  editor_for :create_event, :name => "Create Event", :feature => :event_page_create_event, :inputs => {
+    :input => [[:permalink, 'Event Url', :path]],
+    :owner => [[:target, 'Event Owner Target', :target],
+               [:content, 'Event Owner Content', :content]],
+    :post_permission => [[:target, 'Create Permission Target', :target],
+                         [:content, 'Create Permission Content', :content]],
+    :admin_permission => [[:target, 'Admin Permission Target', :target],
+                          [:content, 'Admin Permission Content', :content]]
+  }
   
   class CalendarOptions < HashModel
-    attributes :event_type_id => nil, :event_page_id => nil
+    attributes :calendar_page_id => nil, :list_page_id => nil, :details_page_id => nil, :create_page_id => nil, :event_type_id => nil
 
-    page_options :event_page_id
+    page_options :calendar_page_id, :list_page_id, :details_page_id, :create_page_id
 
     options_form(
-                 fld(:event_page_id, :page_selector),
+                 fld(:event_list_id, :page_selector),
+                 fld(:details_page_id, :page_selector),
+                 fld(:create_page_id, :page_selector),
                  fld(:event_type_id, :select, :options => :event_type_options)
                  )
 
     def event_type_options
       [['--All event types--', nil]] + EventType.select_options
     end
+
+    def event_range
+      current_month = Time.now.at_beginning_of_month
+      from = current_month - 1.month
+      to = (current_month + 1.month).at_end_of_month
+      from..to
+    end
+
+    def event_scope
+      scope = EventEvent.published.directory.where(:event_at => self.event_range).order('event_at')
+      scope = scope.where(:event_type_id => self.event_type_id) if self.event_type_id
+      scope
+    end
   end
 
   class EventListOptions < HashModel
-    attributes :event_type_id => nil, :relative_date_start => 'now', :relative_date_end => '1', :event_page_id => nil
+    attributes :calendar_page_id => nil, :list_page_id => nil, :details_page_id => nil, :create_page_id => nil, :event_type_id => nil, :relative_date_start => 'now', :relative_date_end => '1'
 
-    page_options :event_page_id
-    
+    page_options :calendar_page_id, :list_page_id, :details_page_id, :create_page_id
+
     options_form(
-                 fld(:event_page_id, :page_selector),
+                 fld(:calendar_page_id, :page_selector),
+                 fld(:create_page_id, :page_selector),
+                 fld(:details_page_id, :page_selector),
                  fld(:event_type_id, :select, :options => :event_type_options),
                  fld(:relative_date_start, :select, :options => :relative_date_start_options, :label => "Display events from"),
                  fld(:relative_date_end, :select, :options => :relative_date_end_options, :label => "Display events to")
@@ -70,19 +100,36 @@ class Event::PageController < ParagraphController
       scope = scope.where(:event_type_id => self.event_type_id) if self.event_type_id
       scope
     end
-    
-    def events(opts={})
-      self.event_scope.all
-    end
   end
   
   class EventDetailsOptions < HashModel
-    attributes :event_list_page_id => nil, :event_page_id => nil
+    attributes :calendar_page_id => nil, :list_page_id => nil, :details_page_id => nil, :create_page_id => nil
     
-    page_options :event_list_page_id, :event_page_id
-    
+    page_options :calendar_page_id, :list_page_id, :details_page_id, :create_page_id
+
     options_form(
-                 fld(:event_list_page_id, :page_selector)
+                 fld(:calendar_page_id, :page_selector),
+                 fld(:list_page_id, :page_selector),
+                 fld(:create_page_id, :page_selector)
                  )
+  end
+
+  class CreateEventOptions < HashModel
+    attributes :calendar_page_id => nil, :list_page_id => nil, :details_page_id => nil, :create_page_id => nil, :event_type_id => 1
+    
+    page_options :calendar_page_id, :list_page_id, :details_page_id, :create_page_id
+    
+    validates_presence_of :event_type_id
+
+    options_form(
+                 fld(:calendar_page_id, :page_selector),
+                 fld(:list_page_id, :page_selector),
+                 fld(:details_page_id, :page_selector),
+                 fld(:event_type_id, :select, :options => :event_type_options)
+                 )
+    
+    def event_type_options
+      EventType.select_options_with_nil
+    end
   end
 end

@@ -179,7 +179,7 @@ class EventEvent < DomainModel
   end
   
   def as_json(opts={})
-    {
+    data = {
       :event_id => self.id,
       :title => self.published ? self.name : "* #{self.name}",
       :start => self.event_at,
@@ -187,6 +187,8 @@ class EventEvent < DomainModel
       :end => self.ends_at,
       :parent_id => self.parent_id
     }
+    data[:url] = opts[:event_node].link(self.permalink) if opts[:event_node]
+    data
   end
   
   def move(days, minutes, all_day)

@@ -7,6 +7,7 @@ class Event::PageFeature < ParagraphFeature
   def event_page_calendar_feature(data)
     webiva_feature(:event_page_calendar,data) do |c|
       c.define_tag('calendar') { |t| render_to_string :partial => '/event/page/calendar', :locals => {:options => data[:options], :events => data[:events], :events_url => ajax_url, :paragraph => paragraph} }
+      self.event_links_feature c, data
     end
   end
 
@@ -25,6 +26,7 @@ class Event::PageFeature < ParagraphFeature
       c.date_tag("start_date", DEFAULT_DATETIME_FORMAT.t) { |t| data[:start_date] }
       c.loop_tag('event') { |t| data[:events] }
       self.event_features c, data
+      self.event_links_feature c, data
     end
   end
   
@@ -86,6 +88,23 @@ class Event::PageFeature < ParagraphFeature
       self.booking_form_feature c, data
       c.loop_tag('event:booking') { |t| t.locals.event.attendance }
       c.booking_features c, data, 'booking'
+      self.event_links_feature c, data
+    end
+  end
+
+ feature :event_page_create_event, :default_feature => <<-FEATURE
+ <cms:event>
+    <h2><cms:name/></h2>
+    <p><cms:description/></p>
+  </cms:event>
+  FEATURE
+
+  def event_page_create_event_feature(data)
+    webiva_feature(:event_page_create_event,data) do |c|
+      c.expansion_tag('updated') { |t| data[:updated] }
+      c.expansion_tag('event') { |t| t.locals.event = data[:event] }
+      self.event_features c, data
+      self.event_links_feature c, data
     end
   end
 
@@ -108,7 +127,7 @@ class Event::PageFeature < ParagraphFeature
     c.expansion_tag("#{base}:ended") { |t| t.locals.event.ended? }
     c.expansion_tag("#{base}:started") { |t| t.locals.event.started? }
     c.expansion_tag("#{base}:allow_guests") { |t| t.locals.event.allow_guests }
-    c.link_tag("#{base}:event") { |t| data[:options].event_page_node.link(t.locals.event.permalink) if data[:options].event_page_node }
+    c.link_tag("#{base}:event") { |t| data[:options].details_page_node.link(t.locals.event.permalink) if data[:options].details_page_node }
   end
   
   def booking_form_feature(c, data, base='event')
@@ -129,5 +148,11 @@ class Event::PageFeature < ParagraphFeature
     c.expansion_tag("#{base}:has_guests") { |t| t.locals.booking.number > 1 }
     c.value_tag("#{base}:number") { |t| t.locals.booking.number }
     c.value_tag("#{base}:guests") { |t| t.locals.booking.number - 1 }
+  end
+  
+  def event_links_feature(c, data)
+    c.link_tag('calendar') { |t| data[:options].calendar_page_url }
+    c.link_tag('event_list') { |t| data[:options].list_page_url }
+    c.link_tag('create_event') { |t| data[:options].create_page_url }
   end
 end
