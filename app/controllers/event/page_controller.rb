@@ -18,7 +18,8 @@ class Event::PageController < ParagraphController
     :book_permission => [[:target, 'Book Permission Target', :target],
                          [:content, 'Book Permission Content', :content]]
   },
-  :outputs => [[:event, 'Event Content', :content]]
+  :outputs => [[:event, 'Event Content', :content],
+               [:event_id, 'Event Identifier', :event_id]]
   editor_for :create_event, :name => "Create Event", :feature => :event_page_create_event, :inputs => {
     :input => [[:permalink, 'Event Url', :path]],
     :owner => [[:target, 'Event Owner Target', :target],

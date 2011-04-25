@@ -65,6 +65,7 @@ class Event::PageRenderer < ParagraphRenderer
     if editor?
       @event = EventEvent.first
       set_page_connection :event, nil
+      set_page_connection :event_id, nil
       return render_paragraph :text => 'No events found' unless @event
     else
       conn_type, conn_id = page_connection
@@ -74,6 +75,7 @@ class Event::PageRenderer < ParagraphRenderer
 
     unless @event
       set_page_connection :event, nil
+      set_page_connection :event_id, nil
       return render_paragraph :nothing => true
     end
 
@@ -90,6 +92,7 @@ class Event::PageRenderer < ParagraphRenderer
     end
 
     set_page_connection :event, ['EventEvent', @event.id]
+    set_page_connection :event_id, @event.id
     render_paragraph :feature => :event_page_event_details
   end
   
@@ -116,10 +119,10 @@ class Event::PageRenderer < ParagraphRenderer
         @event = EventEvent.for_owner(@owner).where(:permalink => conn_id).first
         @event = nil if @event && @event.end_user_id != myself.id && ! @admin_permission
       else
-        @event = EventEvent.new :event_type_id => @options.event_type_id, :owner_type => @owner.class.to_s.underscore, :owner_id => @owner.id, :duration => 120, :end_user_id => myself.id, :directory => 1, :published => 1
+        @event = EventEvent.new :event_type_id => @options.event_type_id, :owner_type => @owner.class.to_s, :owner_id => @owner.id, :duration => 120, :end_user_id => myself.id, :directory => 1, :published => 1
       end
     elsif editor?
-      @event = EventEvent.new :event_type_id => EventType.default.id, :owner_type => @owner.class.to_s.underscore, :owner_id => @owner.id, :duration => 120, :end_user_id => myself.id, :directory => 1, :published => 1
+      @event = EventEvent.new :event_type_id => EventType.default.id, :owner_type => @owner.class.to_s, :owner_id => @owner.id, :duration => 120, :end_user_id => myself.id, :directory => 1, :published => 1
     end
 
     raise SiteNodeEngine::MissingPageException.new(site_node, language) unless @event

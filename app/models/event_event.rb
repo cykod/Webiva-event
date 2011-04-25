@@ -38,9 +38,9 @@ class EventEvent < DomainModel
   def self.for_owner(owner)
     case owner
     when DomainModel
-      self.where(:owner_type => owner.class.to_s.underscore, :owner_id => owner.id);
+      self.where(:owner_type => owner.class.to_s, :owner_id => owner.id);
     when Array
-      self.where(:owner_type => owner[0].to_s.underscore, :owner_id => owner[1]);
+      self.where(:owner_type => owner[0].to_s, :owner_id => owner[1]);
     else
       self
     end
