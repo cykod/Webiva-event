@@ -64,15 +64,19 @@ class Event::PageRenderer < ParagraphRenderer
 
     if editor?
       @event = EventEvent.first
+      set_page_connection :event, nil
       return render_paragraph :text => 'No events found' unless @event
     else
       conn_type, conn_id = page_connection
       @event = EventEvent.where(:permalink => conn_id).first if conn_type == :permalink
       @event = nil unless @event && (@event.published || @event.end_user_id == myself.id)
     end
-    
-    return render_paragraph :nothing => true unless @event
-    
+
+    unless @event
+      set_page_connection :event, nil
+      return render_paragraph :nothing => true
+    end
+
     conn_type, conn_id = page_connection :book_permission
     
     if conn_id || editor?
@@ -85,6 +89,7 @@ class Event::PageRenderer < ParagraphRenderer
       end
     end
 
+    set_page_connection :event, ['EventEvent', @event.id]
     render_paragraph :feature => :event_page_event_details
   end
   

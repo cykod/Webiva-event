@@ -12,11 +12,13 @@ class Event::PageController < ParagraphController
                 [:content, 'Content', :content]],
     :event => [[:permalink, 'Event Url', :path]]
   }
-  editor_for :event_details, :name => "Event Details", :feature => :event_page_event_details, :inputs => {
+  editor_for :event_details, :name => "Event Details", :feature => :event_page_event_details,
+  :inputs => {
     :input => [[:permalink, 'Event Url', :path]],
     :book_permission => [[:target, 'Book Permission Target', :target],
                          [:content, 'Book Permission Content', :content]]
-  }
+  },
+  :outputs => [[:event, 'Event Content', :content]]
   editor_for :create_event, :name => "Create Event", :feature => :event_page_create_event, :inputs => {
     :input => [[:permalink, 'Event Url', :path]],
     :owner => [[:target, 'Event Owner Target', :target],

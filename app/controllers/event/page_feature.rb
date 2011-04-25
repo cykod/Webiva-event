@@ -177,10 +177,10 @@ class Event::PageFeature < ParagraphFeature
     c.form_for_tag("#{base}:form", 'event') { |t| t.locals.event = data[:event] }
     c.field_tag("#{base}:form:name")
     c.field_tag("#{base}:form:description", :control => 'text_area')
-    c.field_tag("#{base}:form:event_on", :control => 'date_field', :blank => true)
+    c.field_tag("#{base}:form:event_on", :control => 'date_field')
     c.field_tag("#{base}:form:start_time", :control => 'select', :options => EventEvent.start_time_select_options)
     c.field_tag("#{base}:form:duration", :control => 'select', :options => EventEvent.duration_select_options)
-    c.field_tag("#{base}:form:ends_on", :control => 'date_field', :blank => true)
+    c.field_tag("#{base}:form:ends_on", :control => 'date_field')
     c.field_tag("#{base}:form:ends_time", :control => 'select', :options => EventEvent.start_time_select_options, :label => 'End time')
     c.field_tag("#{base}:form:published", :control => 'yes_no')
     c.field_tag("#{base}:form:allow_guests", :control => 'yes_no')

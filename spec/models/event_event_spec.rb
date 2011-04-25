@@ -6,6 +6,7 @@ describe EventEvent do
     @event = EventEvent.new
     @event.should have(1).error_on(:event_type_id)
     @event.should have(1).error_on(:name)
+    @event.should have(1).error_on(:event_on)
   end
   
   it "should require a valid start time" do
@@ -15,12 +16,12 @@ describe EventEvent do
 
   describe "EventType" do
     before(:each) do
-      @event_type = EventType.create :name => 'Birthdays'
+      @event_type = Factory.create :event_type
     end
 
     it "should be able to create an event type" do
       expect {
-        @event = @event_type.event_events.create :name => 'Testers'
+        @event = @event_type.event_events.create :name => 'Testers', :event_on => Time.now
       }.to change{ EventEvent.count }
     end
   end
@@ -32,7 +33,7 @@ describe EventEvent do
     
     it "should be able to create child events" do
       expect {
-        @child_event = @event.children.create
+        @child_event = @event.children.create :event_on => Time.now
       }.to change{ EventEvent.count }
       @event.name.should == @child_event.name
       @event.description.should == @child_event.description

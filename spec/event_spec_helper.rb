@@ -6,4 +6,5 @@ end
 Factory.define :event_event do |d|
   d.sequence(:name) { |n| "Event #{n}" }
   d.association :event_type, :factory => :event_type
+  d.event_on Time.now
 end

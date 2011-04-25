@@ -17,10 +17,12 @@ class EventEvent < DomainModel
   
   before_validation_on_create :set_defaults
   before_validation :set_event_at
+  before_validation :set_permalink
 
   validates_presence_of :event_type_id
   validates_presence_of :permalink
   validates_presence_of :name
+  validates_presence_of :event_on
   validates_numericality_of :start_time, :greater_than_or_equal_to => 0, :allow_nil => true
   validates_numericality_of :duration, :greater_than_or_equal_to => 0
   validates_uniqueness_of :permalink
@@ -112,6 +114,22 @@ class EventEvent < DomainModel
     true
   end
   
+  def generate_permalink
+    return self.permalink unless self.permalink.blank? && self.event_on && self.name
+    base_url = self.event_on.strftime("%Y-%m-%d") + '-' + SiteNode.generate_node_path(self.name)
+    test_url = base_url
+    cnt = 2
+    while(EventEvent.where(:permalink => test_url).first) do
+      test_url = "#{base_url}-#{cnt}"
+      cnt += 1
+    end
+    test_url
+  end
+
+  def set_permalink
+    self.permalink = self.generate_permalink
+  end
+
   def set_event_at
     if @ends_on && @ends_time
       @ends_at = @ends_on + @ends_time.to_i.minutes
