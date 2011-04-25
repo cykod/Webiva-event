@@ -3,7 +3,8 @@ element_id = "webiva_calendar_#{paragraph.id}"
 -%>
 <%= content_tag :div, '', :id => element_id %>
 <script>
-$(document).ready(function() {
+jQuery(document).ready(function() {
+  var $ = jQuery;
   var events = <%= events.to_json(:public => true, :user => myself, :event_node => options.details_page_node) %>;
 
   function loadEvents(start, end, callback) {
