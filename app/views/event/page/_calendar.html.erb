@@ -3,13 +3,29 @@ element_id = "webiva_calendar_#{paragraph.id}"
 -%>
 <%= content_tag :div, '', :id => element_id %>
 <script>
- $('#<%= element_id %>').fullCalendar({
+$(document).ready(function() {
+  var events = <%= events.to_json(:public => true, :user => myself, :event_node => options.details_page_node) %>;
+
+  function loadEvents(start, end, callback) {
+    if(events) {
+      callback(events);
+      events = null;
+    } else {
+      start = Math.round(start.getTime() / 1000);
+      end = Math.round(end.getTime() / 1000);
+      $.getJSON("<%= events_url %>", {start: start, end: end}, function(data) { callback(data); });
+    }
+  }
+
+  $('#<%= element_id %>').fullCalendar({
         theme: true,
 	header: {
 	  left: 'prev,next today',
 	  center: 'title',
 	  right: 'month,agendaWeek,agendaDay'
 	},
-	events: '<%= events_url %>'
+	events: loadEvents
+  });
 });
+
 </script>

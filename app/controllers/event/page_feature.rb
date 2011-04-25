@@ -8,6 +8,7 @@ class Event::PageFeature < ParagraphFeature
     webiva_feature(:event_page_calendar,data) do |c|
       c.define_tag('calendar') { |t| render_to_string :partial => '/event/page/calendar', :locals => {:options => data[:options], :events => data[:events], :events_url => ajax_url, :paragraph => paragraph} }
       c.value_tag('events_url') { |t| ajax_url }
+      c.value_tag('events_json') { |t| data[:events].to_json(:public => true, :user => myself, :event_node => data[:options].details_page_node) }
       self.event_links_feature c, data
     end
   end
@@ -143,6 +144,7 @@ class Event::PageFeature < ParagraphFeature
     c.expansion_tag("#{base}:started") { |t| t.locals.event.started? }
     c.expansion_tag("#{base}:allow_guests") { |t| t.locals.event.allow_guests }
     c.link_tag("#{base}:event") { |t| data[:options].details_page_node.link(t.locals.event.permalink) if data[:options].details_page_node }
+    c.link_tag("#{base}:edit_event") { |t| data[:options].create_page_node.link(t.locals.event.permalink) if data[:options].create_page_node }
   end
   
   def booking_form_feature(c, data, base='event')
