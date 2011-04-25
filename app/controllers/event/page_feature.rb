@@ -7,6 +7,7 @@ class Event::PageFeature < ParagraphFeature
   def event_page_calendar_feature(data)
     webiva_feature(:event_page_calendar,data) do |c|
       c.define_tag('calendar') { |t| render_to_string :partial => '/event/page/calendar', :locals => {:options => data[:options], :events => data[:events], :events_url => ajax_url, :paragraph => paragraph} }
+      c.value_tag('events_url') { |t| ajax_url }
       self.event_links_feature c, data
     end
   end
@@ -34,34 +35,36 @@ class Event::PageFeature < ParagraphFeature
  <cms:event>
     <h2><cms:name/></h2>
     <p><cms:description/></p>
-    <cms:updated>
-      Thank you for your response.
-    </cms:updated>
-    <cms:not_updated>
-      <cms:form>
-      <ul>
-        <cms:not_logged_in>
-          <li><cms:name_label/> <cms:name/></li>
-          <li><cms:email_label/> <cms:email/></li>
-        </cms:not_logged_in>
-        <cms:logged_in>
-          <cms:booking>
-          <cms:responded>
-            <li><cms:name/>, do you need to change your response?</li>
-          </cms:responded>
-          <cms:not_responded>
-            <li><cms:name/>, will you be attending this event?</li>
-          </cms:not_responded>
-          </cms:booking>
-        </cms:logged_in>
-        <li><cms:attending_label/> <cms:attending/></li>
-        <cms:allow_guests>
-          <li><cms:number_label/> <cms:number/></li>
-        </cms:allow_guests>
-        <li><label>&nbsp;</label> <cms:submit/></li>
-      </ul>
-      </cms:form>
-    </cms:not_updated>
+    <cms:can_book>
+      <cms:updated>
+        Thank you for your response.
+      </cms:updated>
+      <cms:not_updated>
+        <cms:form>
+        <ul>
+          <cms:not_logged_in>
+            <li><cms:name_label/> <cms:name/></li>
+            <li><cms:email_label/> <cms:email/></li>
+          </cms:not_logged_in>
+          <cms:logged_in>
+            <cms:booking>
+            <cms:responded>
+              <li><cms:name/>, do you need to change your response?</li>
+            </cms:responded>
+            <cms:not_responded>
+              <li><cms:name/>, will you be attending this event?</li>
+            </cms:not_responded>
+            </cms:booking>
+          </cms:logged_in>
+          <li><cms:attending_label/> <cms:attending/></li>
+          <cms:allow_guests>
+            <li><cms:number_label/> <cms:number/></li>
+          </cms:allow_guests>
+          <li><label>&nbsp;</label> <cms:submit/></li>
+        </ul>
+        </cms:form>
+      </cms:not_updated>
+    </cms:can_book>
   <cms:bookings>
     <div>Attendees</div>
     <ul>
@@ -100,6 +103,9 @@ class Event::PageFeature < ParagraphFeature
    <li><cms:description_label/> <cms:description/></li>
    <li><cms:event_on_label/> <cms:event_on/></li>
    <li><cms:start_time_label/> <cms:start_time/></li>
+   <li><cms:published_label/> <cms:published/></li>
+   <li><cms:allow_guests_label/> <cms:allow_guests/></li>
+   <li><cms:total_allowed_label/> <cms:total_allowed/></li>
    <li><label>&nbsp;</label> <cms:submit/></li>
   </ul>
   </cms:form>
@@ -128,8 +134,10 @@ class Event::PageFeature < ParagraphFeature
     c.image_tag("#{base}:image") { |t| t.locals.event.image }
     c.date_tag("#{base}:event_at", DEFAULT_DATETIME_FORMAT.t) { |t| t.locals.event.event_at }
     c.date_tag("#{base}:ends_at", DEFAULT_DATETIME_FORMAT.t) { |t| t.locals.event.ends_at }
-    c.value_tag("#{base}:spaces") { |t| t.locals.event.spaces }
+    c.value_tag("#{base}:total_allowed") { |t| t.locals.event.total_allowed }
+    c.value_tag("#{base}:spaces_left") { |t| t.locals.event.spaces_left }
     c.value_tag("#{base}:bookings") { |t| t.locals.event.bookings }
+    c.value_tag("#{base}:can_book") { |t| t.locals.event.can_book? }
     c.value_tag("#{base}:unconfirmed_bookings") { |t| t.locals.event.unconfirmed_bookings }
     c.expansion_tag("#{base}:ended") { |t| t.locals.event.ended? }
     c.expansion_tag("#{base}:started") { |t| t.locals.event.started? }
@@ -169,6 +177,12 @@ class Event::PageFeature < ParagraphFeature
     c.field_tag("#{base}:form:description", :control => 'text_area')
     c.field_tag("#{base}:form:event_on", :control => 'date_field', :blank => true)
     c.field_tag("#{base}:form:start_time", :control => 'select', :options => EventEvent.start_time_select_options)
+    c.field_tag("#{base}:form:duration", :control => 'select', :options => EventEvent.duration_select_options)
+    c.field_tag("#{base}:form:ends_on", :control => 'date_field', :blank => true)
+    c.field_tag("#{base}:form:ends_time", :control => 'select', :options => EventEvent.start_time_select_options, :label => 'End time')
+    c.field_tag("#{base}:form:published", :control => 'yes_no')
+    c.field_tag("#{base}:form:allow_guests", :control => 'yes_no')
+    c.field_tag("#{base}:form:total_allowed")
     c.button_tag("#{base}:form:submit")
     c.event_feature c, data, "#{base}:form:event"
   end

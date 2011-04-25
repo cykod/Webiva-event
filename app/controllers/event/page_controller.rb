@@ -51,7 +51,7 @@ class Event::PageController < ParagraphController
     end
 
     def event_scope
-      scope = EventEvent.published.directory.where(:event_at => self.event_range).order('event_at')
+      scope = EventEvent.where(:event_at => self.event_range).order('event_at')
       scope = scope.where(:event_type_id => self.event_type_id) if self.event_type_id
       scope
     end
@@ -96,7 +96,7 @@ class Event::PageController < ParagraphController
     end
     
     def event_scope
-      scope = EventEvent.published.directory.where(:event_at => self.event_range).order('event_at')
+      scope = EventEvent.where(:event_at => self.event_range).order('event_at')
       scope = scope.where(:event_type_id => self.event_type_id) if self.event_type_id
       scope
     end

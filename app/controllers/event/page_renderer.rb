@@ -11,10 +11,12 @@ class Event::PageRenderer < ParagraphRenderer
     @options = paragraph_options :calendar
     @options.calendar_page_id = site_node.id
     
-    scope = @options.event_scope
+    scope = @options.event_scope.directory
     conn_type, conn_id = page_connection :target
     scope = scope.for_owner(conn_id) if conn_id
-    @events = scope.all
+    @events = scope.all.reject do |event|
+      event.published || event.end_user_id == myself.id ? false : true
+    end
     
     if ajax?
       render_paragraph :text => @events.to_json(:public => true, :user => myself, :event_node => @options.details_page_node), :content_type => 'application/json'
@@ -46,10 +48,12 @@ class Event::PageRenderer < ParagraphRenderer
     return render_paragraph :nothing => true if conn_type == :permalink && ! conn_id.blank? && ! editor?
 
     @start_date = @options.event_start_date
-    scope = @options.event_scope
+    scope = @options.event_scope.directory
     conn_type, conn_id = page_connection :target
     scope = scope.for_owner(conn_id) if conn_id
-    @events = scope.all
+    @events = scope.all.reject do |event|
+      event.published || event.end_user_id == myself.id ? false : true
+    end
     
     render_paragraph :feature => :event_page_event_list
   end
@@ -64,6 +68,7 @@ class Event::PageRenderer < ParagraphRenderer
     else
       conn_type, conn_id = page_connection
       @event = EventEvent.where(:permalink => conn_id).first if conn_type == :permalink
+      @event = nil unless @event && (@event.published || @event.end_user_id == myself.id)
     end
     
     return render_paragraph :nothing => true unless @event
@@ -115,7 +120,7 @@ class Event::PageRenderer < ParagraphRenderer
     raise SiteNodeEngine::MissingPageException.new(site_node, language) unless @event
 
     if request.post? && ! editor? && params[:event]
-      if @event.update_attributes params[:event].slice(:name, :description, :event_on, :start_time)
+      if @event.update_attributes params[:event].slice(:name, :description, :event_on, :start_time, :published, :allow_guests, :total_allowed, :duration, :ends_on, :ends_time)
         if @options.details_page_node
           redirect_paragraph @options.details_page_node.link(@event.permalink)
           return
