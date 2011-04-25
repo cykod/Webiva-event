@@ -106,10 +106,10 @@ class Event::PageRenderer < ParagraphRenderer
         @event = EventEvent.for_owner(@owner).where(:permalink => conn_id).first
         @event = nil if @event && @event.end_user_id != myself.id && ! @admin_permission
       else
-        @event = EventEvent.new :event_type_id => @options.event_type_id, :owner_type => @owner.class.to_s.underscore, :owner_id => @owner.id, :duration => 120
+        @event = EventEvent.new :event_type_id => @options.event_type_id, :owner_type => @owner.class.to_s.underscore, :owner_id => @owner.id, :duration => 120, :end_user_id => myself.id, :directory => 1, :published => 1
       end
     elsif editor?
-      @event = EventEvent.new :event_type_id => EventType.default.id, :owner_type => @owner.class.to_s.underscore, :owner_id => @owner.id, :duration => 120
+      @event = EventEvent.new :event_type_id => EventType.default.id, :owner_type => @owner.class.to_s.underscore, :owner_id => @owner.id, :duration => 120, :end_user_id => myself.id, :directory => 1, :published => 1
     end
 
     raise SiteNodeEngine::MissingPageException.new(site_node, language) unless @event
@@ -124,6 +124,8 @@ class Event::PageRenderer < ParagraphRenderer
       end
     end
     
+    require_js 'prototype.js'
+    require_js 'application.js'
     render_paragraph :feature => :event_page_create_event
   end
 end

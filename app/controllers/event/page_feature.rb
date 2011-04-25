@@ -25,7 +25,7 @@ class Event::PageFeature < ParagraphFeature
     webiva_feature(:event_page_event_list,data) do |c|
       c.date_tag("start_date", DEFAULT_DATETIME_FORMAT.t) { |t| data[:start_date] }
       c.loop_tag('event') { |t| data[:events] }
-      self.event_features c, data
+      self.event_feature c, data
       self.event_links_feature c, data
     end
   end
@@ -84,18 +84,25 @@ class Event::PageFeature < ParagraphFeature
       c.expansion_tag('logged_in') { |t| myself.id }
       c.expansion_tag('updated') { |t| data[:updated] }
       c.expansion_tag('event') { |t| t.locals.event = data[:event] }
-      self.event_features c, data
+      self.event_feature c, data
       self.booking_form_feature c, data
       c.loop_tag('event:booking') { |t| t.locals.event.attendance }
-      c.booking_features c, data, 'booking'
+      c.booking_feature c, data, 'booking'
       self.event_links_feature c, data
     end
   end
 
  feature :event_page_create_event, :default_feature => <<-FEATURE
  <cms:event>
-    <h2><cms:name/></h2>
-    <p><cms:description/></p>
+ <cms:form>
+ <ul>
+   <li><cms:name_label/> <cms:name/></li>
+   <li><cms:description_label/> <cms:description/></li>
+   <li><cms:event_on_label/> <cms:event_on/></li>
+   <li><cms:start_time_label/> <cms:start_time/></li>
+   <li><label>&nbsp;</label> <cms:submit/></li>
+  </ul>
+  </cms:form>
   </cms:event>
   FEATURE
 
@@ -103,12 +110,12 @@ class Event::PageFeature < ParagraphFeature
     webiva_feature(:event_page_create_event,data) do |c|
       c.expansion_tag('updated') { |t| data[:updated] }
       c.expansion_tag('event') { |t| t.locals.event = data[:event] }
-      self.event_features c, data
+      self.event_form_feature c, data
       self.event_links_feature c, data
     end
   end
 
-  def event_features(c, data, base='event')
+  def event_feature(c, data, base='event')
     c.h_tag("#{base}:name") { |t| t.locals.event.name }
     c.h_tag("#{base}:description") { |t| t.locals.event.description }
     c.h_tag("#{base}:address") { |t| t.locals.event.address }
@@ -138,10 +145,10 @@ class Event::PageFeature < ParagraphFeature
     c.field_tag("#{base}:form:attending", :control => 'yes_no')
     c.button_tag("#{base}:form:submit")
     c.expansion_tag("#{base}:form:booking") { |t| t.locals.booking }
-    c.booking_features c, data, "#{base}:form:booking"
+    c.booking_feature c, data, "#{base}:form:booking"
   end
   
-  def booking_features(c, data, base='booking')
+  def booking_feature(c, data, base='booking')
     c.h_tag("#{base}:name") { |t| t.locals.booking.name }
     c.expansion_tag("#{base}:attending") { |t| t.locals.booking.attending }
     c.expansion_tag("#{base}:responded") { |t| t.locals.booking.responded }
@@ -154,5 +161,15 @@ class Event::PageFeature < ParagraphFeature
     c.link_tag('calendar') { |t| data[:options].calendar_page_url }
     c.link_tag('event_list') { |t| data[:options].list_page_url }
     c.link_tag('create_event') { |t| data[:options].create_page_url }
+  end
+  
+  def event_form_feature(c, data, base='event')
+    c.form_for_tag("#{base}:form", 'event') { |t| t.locals.event = data[:event] }
+    c.field_tag("#{base}:form:name")
+    c.field_tag("#{base}:form:description", :control => 'text_area')
+    c.field_tag("#{base}:form:event_on", :control => 'date_field', :blank => true)
+    c.field_tag("#{base}:form:start_time", :control => 'select', :options => EventEvent.start_time_select_options)
+    c.button_tag("#{base}:form:submit")
+    c.event_feature c, data, "#{base}:form:event"
   end
 end

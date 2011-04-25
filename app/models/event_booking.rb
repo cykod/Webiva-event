@@ -49,8 +49,10 @@ class EventBooking < DomainModel
   end
   
   def validate_attendance
-    self.errors.add(:number, 'is invalid, no guest allowed') unless self.number <= 1 || self.event_event.allow_guests
-    self.errors.add(:number, 'is invalid, no space left') if (self.number - self.total_booked) > self.event_event.spaces_left
+    if self.event_event
+      self.errors.add(:number, 'is invalid, no guest allowed') unless self.number <= 1 || self.event_event.allow_guests
+      self.errors.add(:number, 'is invalid, no space left') if (self.number - self.total_booked) > self.event_event.spaces_left
+    end
   end
 
   def update_attendance

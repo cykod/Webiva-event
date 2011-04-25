@@ -138,6 +138,8 @@ class EventEvent < DomainModel
     if @ends_at
       self.duration = (@ends_at.to_i - self.event_at.to_i) / 60
       @ends_at = nil
+    elsif self.all_day_event?
+      self.duration = 1440
     end
   end
   
