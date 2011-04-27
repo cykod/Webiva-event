@@ -356,4 +356,8 @@ class EventEvent < DomainModel
     return if @total_allowed_changed.to_i == 0
     self.connection.update "UPDATE event_events SET spaces_left = spaces_left + #{@total_allowed_changed} WHERE id = #{self.id}"
   end
+  
+  def location
+    [self.address, self.address_2, "#{self.city}, #{self.state} #{self.zip}"].reject(&:blank?).map(&:strip).compact.join(', ')
+  end
 end
