@@ -43,6 +43,16 @@ class Event::ManageController < ModuleController
       @event.set_event_at
     end
 
+    unless @event.new_record?
+      if @event.repeat.new_record?
+        @event.repeat.repeat_type = 'daily'
+        @event.repeat.start_on = @event.event_on
+        @event.has_repeat = false
+      else
+        @event.has_repeat = true
+      end
+    end
+    
     if request.post? && params[:event]
       @event.attributes = params[:event]
       if params[:commit] && @event.save
@@ -54,6 +64,8 @@ class Event::ManageController < ModuleController
           redirect_to :action => 'calendar'
         end
         return
+      else
+        @event.permalink = nil if @event.new_record? && params[:event][:permalink].blank?
       end
     end
     

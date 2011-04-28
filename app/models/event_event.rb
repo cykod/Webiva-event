@@ -1,5 +1,5 @@
 class EventEvent < DomainModel
-  attr_accessor :starts_at, :ends_at, :ends_on, :ends_time
+  attr_accessor :starts_at, :ends_at, :ends_on, :ends_time, :has_repeat
 
   include ModelExtension::HandlerExtension
 
@@ -28,9 +28,11 @@ class EventEvent < DomainModel
   validates_uniqueness_of :permalink
   validate :validate_event_times
   validate :validate_custom_content
-
+  validate :validate_repeat
+  
   after_save :update_custom_content
   after_save :update_spaces
+  after_save :save_repeat
 
   named_scope :published, where(:published => true)
   named_scope :directory, where(:directory => true) # wether or not to display the event in the list paragraph
@@ -109,7 +111,6 @@ class EventEvent < DomainModel
 
     self.published ||= false
     self.duration ||= 0
-    self.permalink = DomainModel.generate_hash if self.permalink.blank?
     self.type_handler = self.event_type.type_handler if self.event_type
     true
   end
@@ -359,5 +360,44 @@ class EventEvent < DomainModel
   
   def location
     [self.address, self.address_2, "#{self.city}, #{self.state} #{self.zip}"].reject(&:blank?).map(&:strip).compact.join(', ')
+  end
+  
+  def get_first_repeat
+    self.event_repeats.first || self.event_repeats.new(:repeat_type => 'daily')
+  end
+
+  def has_repeat=(val)
+    @has_repeat = val == '1' || val.is_a?(TrueClass) ? true : false
+  end
+
+  def repeat
+    @repeat ||= self.get_first_repeat
+  end
+  
+  def repeat=(hsh)
+    @repeat ||= self.get_first_repeat
+    @repeat.attributes = hsh.slice(:start_on, :repeat_type)
+  end
+  
+  def validate_repeat
+    return unless @repeat
+    self.errors.add(:base, 'invalid repeat settings') if @has_repeat && ! @repeat.valid?
+  end
+
+  def save_repeat
+    return unless @repeat
+
+    if @has_repeat
+      @repeat.save
+    else
+      @repeat.destroy unless @repeat.new_record?
+    end
+  end
+  
+  def create_child_event(start_on)
+    event = EventEvent.new self.attributes.slice('event_type_id', 'owner_type', 'owner_id', 'end_user_id', 'start_time', 'duration', 'total_allowed', 'notify_organizer', 'directory', 'allow_guests', 'published', 'type_handler')
+    event.event_on = start_on
+    event.parent_id = self.id
+    event.save
   end
 end

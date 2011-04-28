@@ -41,6 +41,14 @@
     <% end -%>
   <% end -%>
 
+  <% unless event.new_record? -%>
+    <%= f.header "Repeat Settings" %>
+    <%= f.yes_no :has_repeat %>
+    <% cms_subfields_for 'event[repeat]', event.repeat do |sf| -%>
+      <%= render :partial => 'event_repeat_form', :locals => {:f => sf, :event_repeat => event.repeat} %>
+    <% end -%>
+  <% end -%>
+
   <%= f.spacer %>
   <% if request.xhr? -%>
     <%= f.cancel_submit_buttons 'Cancel', event.id ? 'Update Event' : 'Add Event', :onclick => 'RedBox.close();' %>
