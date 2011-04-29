@@ -1,5 +1,7 @@
-<% active_table_for :event_types_table, @active_table_output do |t| -%>
+<% active_table_for :event_types_table, @active_table_output,
+   :more_actions => [['Delete', 'delete', 'Are you sure you want to delete this event type?']] do |t| -%>
   <% active_tr 'type', t.id do -%>
+    <td><%= entry_checkbox 'type', t.id %></td>
     <td><%= link_to t.name, :action => 'event_type', :path => t.id %></td>
     <td><%= h t.description %></td>
     <td align="center"><%= t.created_at.localize(DEFAULT_DATETIME_FORMAT.t) %></td>

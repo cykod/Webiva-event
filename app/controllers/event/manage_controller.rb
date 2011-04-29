@@ -13,14 +13,20 @@ class Event::ManageController < ModuleController
 
   active_table :events_table,
                 EventEvent,
-                [ :name,
+                [ :check,
+                  :name,
                   hdr(:options, 'event_type_id', :options => :event_type_options),
+                  :published,
                   :event_at,
                   hdr(:static, 'Ends at')
                 ]
 
   def display_events_table(display=true)
     active_table_action 'event' do |act,ids|
+      case act
+      when 'delete'
+        EventEvent.destroy ids
+      end
     end
 
     @active_table_output = events_table_generate params, :order => 'event_events.event_at DESC'
@@ -115,14 +121,19 @@ class Event::ManageController < ModuleController
 
   active_table :event_types_table,
                 EventType,
-                [ :name,
+                [ :check,
+                  :name,
                   :description,
                   :created_at,
                   :updated_at
                 ]
 
   def display_event_types_table(display=true)
-    active_table_action 'event' do |act,ids|
+    active_table_action 'type' do |act,ids|
+      case act
+      when 'delete'
+        EventType.destroy ids
+      end
     end
 
     @active_table_output = event_types_table_generate params, :order => 'event_types.created_at DESC'
