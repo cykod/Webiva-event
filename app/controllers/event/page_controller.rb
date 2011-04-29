@@ -126,7 +126,7 @@ class Event::PageController < ParagraphController
                  )
 
     def event_type_options
-      EventType.select_options_with_nil
+      [['--All event types--', nil]] + EventType.select_options_with_nil
     end
 
     def event_type
