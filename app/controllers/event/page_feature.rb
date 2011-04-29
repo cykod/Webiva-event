@@ -145,6 +145,13 @@ class Event::PageFeature < ParagraphFeature
     c.expansion_tag("#{base}:allow_guests") { |t| t.locals.event.allow_guests }
     c.link_tag("#{base}:event") { |t| data[:options].details_page_node.link(t.locals.event.permalink) if data[:options].details_page_node }
     c.link_tag("#{base}:edit_event") { |t| data[:options].create_page_node.link(t.locals.event.permalink) if data[:options].create_page_node }
+    
+    if data[:options] && data[:options].event_type && data[:options].event_type.content_model
+      c.expansion_tag("#{base}:content") { |t| t.locals.entry = t.locals.event.content_data }
+      data[:options].event_type.content_model.content_model_fields.each do |fld|
+        fld.site_feature_value_tags(c, "#{base}:content")
+      end
+    end
   end
   
   def booking_form_feature(c, data, base='event')
@@ -187,5 +194,11 @@ class Event::PageFeature < ParagraphFeature
     c.field_tag("#{base}:form:total_allowed")
     c.button_tag("#{base}:form:submit")
     c.event_feature c, data, "#{base}:form:event"
+
+    if data[:options] && data[:options].event_type && data[:options].event_type.content_publication
+      c.expansion_tag("#{base}:pub") { |t| data[:options] && data[:options].event_type && data[:options].event_type.content_publication }
+      c.fields_for_tag("#{base}:pub:form", 'event[content_data]') { |t| t.locals.event.content_data }
+      c.publication_field_tags("#{base}:pub:form", data[:options].event_type.content_publication)
+    end
   end
 end

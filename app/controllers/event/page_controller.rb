@@ -58,6 +58,10 @@ class Event::PageController < ParagraphController
       scope = scope.where(:event_type_id => self.event_type_id) if self.event_type_id
       scope
     end
+    
+    def event_type
+      @event_type ||= EventType.where(:id => self.event_type_id).first
+    end
   end
 
   class EventListOptions < HashModel
@@ -103,18 +107,31 @@ class Event::PageController < ParagraphController
       scope = scope.where(:event_type_id => self.event_type_id) if self.event_type_id
       scope
     end
+
+    def event_type
+      @event_type ||= EventType.where(:id => self.event_type_id).first
+    end
   end
   
   class EventDetailsOptions < HashModel
-    attributes :calendar_page_id => nil, :list_page_id => nil, :details_page_id => nil, :create_page_id => nil
+    attributes :calendar_page_id => nil, :list_page_id => nil, :details_page_id => nil, :create_page_id => nil, :event_type_id => 1
     
     page_options :calendar_page_id, :list_page_id, :details_page_id, :create_page_id
 
     options_form(
                  fld(:calendar_page_id, :page_selector),
                  fld(:list_page_id, :page_selector),
-                 fld(:create_page_id, :page_selector)
+                 fld(:create_page_id, :page_selector),
+                 fld(:event_type_id, :select, :options => :event_type_options)
                  )
+
+    def event_type_options
+      EventType.select_options_with_nil
+    end
+
+    def event_type
+      @event_type ||= EventType.where(:id => self.event_type_id).first
+    end
   end
 
   class CreateEventOptions < HashModel
@@ -133,6 +150,10 @@ class Event::PageController < ParagraphController
     
     def event_type_options
       EventType.select_options_with_nil
+    end
+
+    def event_type
+      @event_type ||= EventType.where(:id => self.event_type_id).first
     end
   end
 end

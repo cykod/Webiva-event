@@ -5,6 +5,9 @@
   <%= f.filemanager_image :image_id %>
   <%= f.select :type_handler, EventEvent.handler_select_options_with_nil %>
   <%= f.select :content_model_id, ContentModel.select_options_with_nil %>
+  <% if @event_type.content_model -%>
+    <%= f.select :content_publication_id, @event_type.content_publication_options %>
+  <% end -%>
   <%= f.submit_tag @event_type.id ? 'Update Event Type' : 'Add Event Type' %>
 <% end -%>
 </div>

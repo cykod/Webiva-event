@@ -32,10 +32,19 @@ class EventType < DomainModel
       self.errors.add(:content_model_id, "is invalid, missing belongs_to relation")
       self.errors.add(:relational_field_id, "is invalid")
     end
+    
+    if self.content_publication
+      self.errors.add(:content_publication_id, 'is invalid, wrong content model') unless self.content_publication.content_model_id == self.content_model_id
+    end
   end
   
   def validate_handler
     return if self.type_handler.blank?
     self.errors.add(:type_handler, 'is invalid') unless self.get_handler_info(:event, :type, self.type_handler)
+  end
+  
+  def content_publication_options
+    return [] unless self.content_model
+    [['--Select content publication--', nil]] + self.content_model.content_publications.where(:publication_type => 'create').all.collect { |p| [p.name, p.id] }
   end
 end

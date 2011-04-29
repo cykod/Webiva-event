@@ -128,7 +128,16 @@ class Event::PageRenderer < ParagraphRenderer
     raise SiteNodeEngine::MissingPageException.new(site_node, language) unless @event
 
     if request.post? && ! editor? && params[:event]
-      if @event.update_attributes params[:event].slice(:name, :description, :event_on, :start_time, :published, :allow_guests, :total_allowed, :duration, :ends_on, :ends_time)
+      publication_data = nil
+      if params[:event][:content_data] && @options.event_type && @options.event_type.content_publication
+        publication_data = {}
+        @options.event_type.content_publication.content_publication_fields.each do |fld|
+          fld = fld.content_model_field
+          publication_data[fld.field.to_sym] = params[:event][:content_data][fld.field]
+        end
+      end
+
+      if @event.update_attributes params[:event].slice(:name, :description, :event_on, :start_time, :published, :allow_guests, :total_allowed, :duration, :ends_on, :ends_time).merge(:content_data => publication_data)
         if @options.details_page_node
           redirect_paragraph @options.details_page_node.link(@event.permalink)
           return
