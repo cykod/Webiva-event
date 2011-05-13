@@ -252,7 +252,11 @@ class EventEvent < DomainModel
   end
 
   def ends_time
-    (self.ends_at.to_i - self.ends_at.at_midnight.to_i) / 60
+    if self.ends_at
+      (self.ends_at.to_i - self.ends_at.at_midnight.to_i) / 60
+    else
+      self.start_time
+    end
   end
   
   def ends_time=(minutes)
