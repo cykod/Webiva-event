@@ -15,18 +15,33 @@ class Event::PageFeature < ParagraphFeature
 
   feature :event_page_event_list, :default_feature => <<-FEATURE
   <cms:events>
+  <cms:month>
+  <h2><cms:date/></h2>
   <ul>
     <cms:event>
     <li><cms:event_link><cms:name/></cms:event_link> on <cms:event_at/><br/><cms:description/></li>
     </cms:event>
   </ul>
+  </cms:month>
   </cms:events>
   FEATURE
 
   def event_page_event_list_feature(data)
     webiva_feature(:event_page_event_list,data) do |c|
-      c.date_tag("start_date", DEFAULT_DATETIME_FORMAT.t) { |t| data[:start_date] }
-      c.loop_tag('event') { |t| data[:events] }
+      c.datetime_tag("start_date") { |t| data[:start_date] }
+      c.loop_tag('event') { |t| t.locals.events || data[:events] }
+
+      c.date_tag('month:date',"%B %Y") { |t| t.locals.date }
+      c.define_tag('month') do |t|
+         monthed_events = data[:events].group_by(&:event_month).to_a.sort { |a,b| a[0] <=> b[0] }
+
+         c.each_local_value(monthed_events,t,'month_data') do |itm, t|
+           t.locals.date = itm[0]
+           t.locals.events = itm[1]
+           t.expand
+         end
+      end
+
       self.event_feature c, data
       self.event_links_feature c, data
     end

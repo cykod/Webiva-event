@@ -35,14 +35,20 @@ class EventEvent < DomainModel
   named_scope :published, where(:published => true)
   named_scope :directory, where(:directory => true) # wether or not to display the event in the list paragraph
 
-  def self.for_owner(owner)
-    case owner
+  def self.for_owner(owner,include_others=false)
+    owner_type,owner_id = case owner
     when DomainModel
-      self.where(:owner_type => owner.class.to_s, :owner_id => owner.id);
+      [ owner.class.to_s, owner.id ]
     when Array
-      self.where(:owner_type => owner[0].to_s, :owner_id => owner[1]);
+      [ owner[0].to_s, owner[1] ] 
     else
-      self
+      return self
+    end
+
+    if include_others
+      self.where("((owner_type = ? and owner_id = ?) OR owner_type is NULL)",owner_type,owner_id)
+    else
+      self.where(:owner_type => owner_type, :owner_id => owner_id)
     end
   end
 
@@ -322,6 +328,11 @@ class EventEvent < DomainModel
   
   def attendance
     @attendance ||= self.event_bookings.includes(:end_user).order('responded DESC, attending DESC').all
+  end
+
+
+  def event_month
+    @event_month ||= self.event_at.at_beginning_of_month
   end
   
   def can_book?

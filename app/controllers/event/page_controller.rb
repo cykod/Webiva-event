@@ -10,7 +10,10 @@ class Event::PageController < ParagraphController
   editor_for :event_list, :name => "Event List", :feature => :event_page_event_list, :inputs => {
     :target => [[:target, 'Target', :target],
                 [:content, 'Content', :content]],
-    :event => [[:permalink, 'Event Url', :path]]
+    :event => [[:permalink, 'Event Url', :path]],
+    :post_permission => [[:target, 'Create Permission Target', :target],
+                         [:content, 'Create Permission Content', :content]]
+
   }
   editor_for :event_details, :name => "Event Details", :feature => :event_page_event_details,
   :inputs => {
@@ -65,9 +68,10 @@ class Event::PageController < ParagraphController
   end
 
   class EventListOptions < HashModel
-    attributes :calendar_page_id => nil, :list_page_id => nil, :details_page_id => nil, :create_page_id => nil, :event_type_id => nil, :relative_date_start => 'now', :relative_date_end => '1'
+    attributes :calendar_page_id => nil, :list_page_id => nil, :details_page_id => nil, :create_page_id => nil, :event_type_id => nil, :relative_date_start => 'now', :relative_date_end => '1',:show_other => false
 
     page_options :calendar_page_id, :list_page_id, :details_page_id, :create_page_id
+    boolean_options :show_other
 
     options_form(
                  fld(:calendar_page_id, :page_selector),
@@ -75,7 +79,8 @@ class Event::PageController < ParagraphController
                  fld(:details_page_id, :page_selector),
                  fld(:event_type_id, :select, :options => :event_type_options),
                  fld(:relative_date_start, :select, :options => :relative_date_start_options, :label => "Display events from"),
-                 fld(:relative_date_end, :select, :options => :relative_date_end_options, :label => "Display events to")
+                 fld(:relative_date_end, :select, :options => :relative_date_end_options, :label => "Display events to"),
+                 fld(:show_other,:yes_no,:label => 'Display all non-targeted events')
                  )
     
     def event_type_options

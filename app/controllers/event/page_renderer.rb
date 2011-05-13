@@ -47,10 +47,14 @@ class Event::PageRenderer < ParagraphRenderer
     conn_type, conn_id = page_connection(:event)
     return render_paragraph :nothing => true if conn_type == :permalink && ! conn_id.blank? && ! editor?
 
+    perm_conn_type, perm_conn_id = page_connection(:post_permission)
+    @options.create_page_id = nil unless perm_conn_id
+
     @start_date = @options.event_start_date
     scope = @options.event_scope.directory
     conn_type, conn_id = page_connection :target
-    scope = scope.for_owner(conn_id) if conn_id
+
+    scope = scope.for_owner(conn_id,@options.show_other) if conn_id
     @events = scope.all.reject do |event|
       event.published || event.end_user_id == myself.id ? false : true
     end
