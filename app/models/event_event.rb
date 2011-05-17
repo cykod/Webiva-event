@@ -31,6 +31,7 @@ class EventEvent < DomainModel
 
   after_save :update_custom_content
   after_save :update_spaces
+  before_create { |event| event.total_allowed ||= 1000 }
 
   named_scope :published, where(:published => true)
   named_scope :directory, where(:directory => true) # wether or not to display the event in the list paragraph

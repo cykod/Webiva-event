@@ -121,7 +121,6 @@ class Event::PageFeature < ParagraphFeature
    <li><cms:start_time_label/> <cms:start_time/></li>
    <li><cms:published_label/> <cms:published/></li>
    <li><cms:allow_guests_label/> <cms:allow_guests/></li>
-   <li><cms:total_allowed_label/> <cms:total_allowed/></li>
    <li><label>&nbsp;</label> <cms:submit/></li>
   </ul>
   </cms:form>

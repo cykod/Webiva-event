@@ -42,7 +42,7 @@ class InitialSetup < ActiveRecord::Migration
       
       t.integer :duration
       
-      t.integer :total_allowed, :default => 0
+      t.integer :total_allowed
       t.integer :spaces_left, :default => 0
       t.integer :bookings, :default => 0
       t.integer :unconfirmed_bookings, :default => 0
